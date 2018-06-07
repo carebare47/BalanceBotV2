@@ -1,0 +1,4 @@
+#Thu Jun 07 05:31:37 BST 2018
+base.0=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/23
+path.0=classes.dex
+renamed.0=classes.dex
