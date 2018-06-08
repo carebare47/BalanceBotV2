@@ -34,6 +34,16 @@ public class MainActivity extends Activity  {
         b5=(Button)findViewById(R.id.button5);
 
         BA = BluetoothAdapter.getDefaultAdapter();
+
+        if(BA == null)
+        {
+            //Show a mensag. that the device has no bluetooth adapter
+            Toast.makeText(getApplicationContext(), "Bluetooth Device Not Available", Toast.LENGTH_LONG).show();
+
+            //finish apk
+            finish();
+        }
+
         lv = (ListView)findViewById(R.id.listView);
     }
 //    protected void onPause(Bundle savedInstanceState) {
@@ -53,7 +63,13 @@ public class MainActivity extends Activity  {
     }
 
     public void control(View v){
-        setContentView(R.layout.activity_control);
+        // Do something in response to button
+        Intent intent = new Intent(this, ControlActivity.class);
+        //EditText editText = (EditText) findViewById(R.id.editText);
+        //String message = editText.getText().toString();
+        //intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+        //setContentView(R.layout.activity_control);
     }
     public  void visible(View v){
         Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
