@@ -1,4 +1,4 @@
-#Fri Jun 08 21:19:10 BST 2018
-base.0=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/65
+#Sat Jun 09 00:10:01 BST 2018
+base.0=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/8
 path.0=classes.dex
 renamed.0=classes.dex
