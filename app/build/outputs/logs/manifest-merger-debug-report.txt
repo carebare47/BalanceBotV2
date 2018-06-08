@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
 MERGED from [com.android.support:appcompat-v7:28.0.0-alpha3] /home/tom/.gradle/caches/transforms-1/files-1.1/appcompat-v7-28.0.0-alpha3.aar/81847658ce9aa6b5b76320ebc6143897/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support.constraint:constraint-layout:1.1.1] /home/tom/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.1.1.aar/94b1e1f524944a424eee13bd5dfc3adf/AndroidManifest.xml:2:1-11:12
 MERGED from [com.android.support:support-fragment:28.0.0-alpha3] /home/tom/.gradle/caches/transforms-1/files-1.1/support-fragment-28.0.0-alpha3.aar/1a7e363ceb51d61904bb3bc6a15788ff/AndroidManifest.xml:17:1-22:12
@@ -30,20 +30,20 @@ MERGED from [android.arch.lifecycle:viewmodel:1.1.1] /home/tom/.gradle/caches/tr
 MERGED from [android.arch.lifecycle:livedata-core:1.1.1] /home/tom/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.1.aar/a65d1f2b553aee5e06afc9fc3584fb09/AndroidManifest.xml:17:1-22:12
 MERGED from [android.arch.core:runtime:1.1.1] /home/tom/.gradle/caches/transforms-1/files-1.1/runtime-1.1.1.aar/a653fa8dfbc64fc34b5f56698accfcc6/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:interpolator:28.0.0-alpha3] /home/tom/.gradle/caches/transforms-1/files-1.1/interpolator-28.0.0-alpha3.aar/ed438c3efc99123f479a865ecee8b44f/AndroidManifest.xml:17:1-22:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
 	package
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:3:5-35
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-25:12
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:1-30:12
 		INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:2:11-69
@@ -56,7 +56,7 @@ ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest
 	android:name
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:5:22-71
 application
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:7:5-24:19
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:7:5-29:19
 MERGED from [com.android.support.constraint:constraint-layout:1.1.1] /home/tom/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.1.1.aar/94b1e1f524944a424eee13bd5dfc3adf/AndroidManifest.xml:9:5-20
 MERGED from [com.android.support.constraint:constraint-layout:1.1.1] /home/tom/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.1.1.aar/94b1e1f524944a424eee13bd5dfc3adf/AndroidManifest.xml:9:5-20
 MERGED from [com.android.support:support-compat:28.0.0-alpha3] /home/tom/.gradle/caches/transforms-1/files-1.1/support-compat-28.0.0-alpha3.aar/3c6a880569f26207ac6b8d40c74cc810/AndroidManifest.xml:22:5-94
@@ -68,27 +68,33 @@ MERGED from [com.android.support:versionedparcelable:28.0.0-alpha3] /home/tom/.g
 	android:label
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:10:9-41
 	android:icon
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:9:9-43
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:9:9-38
 	android:allowBackup
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:8:9-35
 	android:theme
 		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:11:9-40
+activity#com.example.bluetest.ControlActivity
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:13:9-16:20
+	android:logo
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:15:13-43
+	android:name
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:14:13-44
 activity#com.example.bluetest.MainActivity
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:13:9-22:20
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:18:9-27:20
 	android:label
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:15:13-45
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:20:13-45
 	android:name
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:14:13-41
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:19:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:17:13-20:29
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:22:13-25:29
 action#android.intent.action.MAIN
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:18:17-69
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:23:17-69
 	android:name
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:18:25-66
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:23:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:19:17-77
+ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:24:17-77
 	android:name
-		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:19:27-74
+		ADDED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml:24:27-74
 uses-sdk
 INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/tom/AndroidStudioProjects/blueTest/app/src/main/AndroidManifest.xml

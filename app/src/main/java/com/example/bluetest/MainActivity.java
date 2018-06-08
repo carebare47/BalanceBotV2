@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends Activity  {
-    Button b1,b2,b3,b4;
+    Button b1,b2,b3,b4,b5;
     private BluetoothAdapter BA;
     private Set<BluetoothDevice>pairedDevices;
     ListView lv;
@@ -27,15 +27,16 @@ public class MainActivity extends Activity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        b1 = (Button) findViewById(R.id.button);
+        b1=(Button)findViewById(R.id.button);
         b2=(Button)findViewById(R.id.button2);
         b3=(Button)findViewById(R.id.button3);
         b4=(Button)findViewById(R.id.button4);
+        b5=(Button)findViewById(R.id.button5);
 
         BA = BluetoothAdapter.getDefaultAdapter();
         lv = (ListView)findViewById(R.id.listView);
     }
-
+//    protected void onPause(Bundle savedInstanceState) {
     public void on(View v){
         if (!BA.isEnabled()) {
             Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -51,7 +52,9 @@ public class MainActivity extends Activity  {
         Toast.makeText(getApplicationContext(), "Turned off" ,Toast.LENGTH_LONG).show();
     }
 
-
+    public void control(View v){
+        setContentView(R.layout.activity_control);
+    }
     public  void visible(View v){
         Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         startActivityForResult(getVisible, 0);

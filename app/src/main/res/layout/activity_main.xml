@@ -99,4 +99,14 @@
         android:layout_alignLeft="@+id/listView"
         android:layout_alignStart="@+id/listView" />
 
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="153dp"
+        android:layout_toStartOf="@+id/textView"
+        android:onClick="control"
+        android:text="Control" />
+
 </RelativeLayout>
