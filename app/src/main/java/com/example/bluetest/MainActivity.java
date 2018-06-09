@@ -108,7 +108,8 @@ public class MainActivity extends Activity  {
         ArrayList list = new ArrayList();
 
         for(BluetoothDevice bt : pairedDevices){
-            list.add(bt.getName().concat(bt.getAddress()));
+            list.add(bt.getName() + "\n" + (bt.getAddress()));
+            //list.add(bt.getName().concat(bt.getAddress())); //This works
             //list.add(bt.getAddress());
         }
         Toast.makeText(getApplicationContext(), "Showing Paired Devices",Toast.LENGTH_SHORT).show();

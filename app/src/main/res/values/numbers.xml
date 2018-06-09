@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="range_max">10</integer>
+    <integer name="angular_range">20</integer>
+    <integer name="position_range">100</integer>
+    <integer name="range_min">-10</integer>
+</resources>

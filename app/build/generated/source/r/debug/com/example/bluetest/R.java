@@ -3126,26 +3126,32 @@ public final class R {
     public static final int textSpacerNoTitle=0x7f07008f;
     public static final int textView=0x7f070090;
     public static final int textView2=0x7f070091;
-    public static final int textview=0x7f070092;
-    public static final int time=0x7f070093;
-    public static final int title=0x7f070094;
-    public static final int titleDividerNoCustom=0x7f070095;
-    public static final int title_template=0x7f070096;
-    public static final int top=0x7f070097;
-    public static final int topPanel=0x7f070098;
-    public static final int uniform=0x7f070099;
-    public static final int up=0x7f07009a;
-    public static final int useLogo=0x7f07009b;
-    public static final int withText=0x7f07009c;
-    public static final int wrap=0x7f07009d;
-    public static final int wrap_content=0x7f07009e;
+    public static final int textView3=0x7f070092;
+    public static final int textView5=0x7f070093;
+    public static final int textview=0x7f070094;
+    public static final int time=0x7f070095;
+    public static final int title=0x7f070096;
+    public static final int titleDividerNoCustom=0x7f070097;
+    public static final int title_template=0x7f070098;
+    public static final int top=0x7f070099;
+    public static final int topPanel=0x7f07009a;
+    public static final int uniform=0x7f07009b;
+    public static final int up=0x7f07009c;
+    public static final int useLogo=0x7f07009d;
+    public static final int withText=0x7f07009e;
+    public static final int wrap=0x7f07009f;
+    public static final int wrap_content=0x7f0700a0;
   }
   public static final class integer {
     public static final int abc_config_activityDefaultDur=0x7f080000;
     public static final int abc_config_activityShortDur=0x7f080001;
-    public static final int cancel_button_image_alpha=0x7f080002;
-    public static final int config_tooltipAnimTime=0x7f080003;
-    public static final int status_bar_notification_info_maxnum=0x7f080004;
+    public static final int angular_range=0x7f080002;
+    public static final int cancel_button_image_alpha=0x7f080003;
+    public static final int config_tooltipAnimTime=0x7f080004;
+    public static final int position_range=0x7f080005;
+    public static final int range_max=0x7f080006;
+    public static final int range_min=0x7f080007;
+    public static final int status_bar_notification_info_maxnum=0x7f080008;
   }
   public static final class layout {
     public static final int abc_action_bar_title_item=0x7f090000;
@@ -3177,17 +3183,19 @@ public final class R {
     public static final int abc_select_dialog_material=0x7f09001a;
     public static final int abc_tooltip=0x7f09001b;
     public static final int activity_control=0x7f09001c;
-    public static final int activity_main=0x7f09001d;
-    public static final int notification_action=0x7f09001e;
-    public static final int notification_action_tombstone=0x7f09001f;
-    public static final int notification_template_custom_big=0x7f090020;
-    public static final int notification_template_icon_group=0x7f090021;
-    public static final int notification_template_part_chronometer=0x7f090022;
-    public static final int notification_template_part_time=0x7f090023;
-    public static final int select_dialog_item_material=0x7f090024;
-    public static final int select_dialog_multichoice_material=0x7f090025;
-    public static final int select_dialog_singlechoice_material=0x7f090026;
-    public static final int support_simple_spinner_dropdown_item=0x7f090027;
+    public static final int activity_imu=0x7f09001d;
+    public static final int activity_main=0x7f09001e;
+    public static final int activity_position=0x7f09001f;
+    public static final int notification_action=0x7f090020;
+    public static final int notification_action_tombstone=0x7f090021;
+    public static final int notification_template_custom_big=0x7f090022;
+    public static final int notification_template_icon_group=0x7f090023;
+    public static final int notification_template_part_chronometer=0x7f090024;
+    public static final int notification_template_part_time=0x7f090025;
+    public static final int select_dialog_item_material=0x7f090026;
+    public static final int select_dialog_multichoice_material=0x7f090027;
+    public static final int select_dialog_singlechoice_material=0x7f090028;
+    public static final int support_simple_spinner_dropdown_item=0x7f090029;
   }
   public static final class mipmap {
     public static final int ic_launcher=0x7f0a0000;
