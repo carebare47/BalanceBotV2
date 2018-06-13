@@ -71,15 +71,15 @@ public class PositionActivity extends Activity {
                     float progressFloat = ( (float) progress / (float) range_precision) - ( (float) positionRange / 2);
                     textView.setText("   " + String.valueOf(progressFloat)+"cm");
                     //Uncomment for hc-05
-//                         try
-//                         {
+                         try
+                         {
                     msg("Alter code to connect to hc-05");
-                    //btSocket.getOutputStream().write(String.valueOf(progress).getBytes());
-//                         }
-//                         catch (IOException e)
-//                         {
-//                             msg("Couldn't send angle message");
-//                         }
+                    btSocket.getOutputStream().write(String.valueOf("&x=" + progress).getBytes());
+                         }
+                         catch (IOException e)
+                         {
+                             msg("Couldn't send angle message");
+                         }
                 }
             }
 
