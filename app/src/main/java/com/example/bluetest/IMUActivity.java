@@ -19,10 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -33,11 +29,8 @@ public class IMUActivity extends Activity implements SensorEventListener{
 
     private float fRoll = 0;
     private float fPitch = 0;
-    private float fYaw = 0;
 
     private TextView tRoll, tPitch;
-    private ProgressBar progPitch, progRoll;
-
 
     Button b5,b8,b9;
     SeekBar seek1;
@@ -87,9 +80,6 @@ public class IMUActivity extends Activity implements SensorEventListener{
     public void initializeViews() {
         tRoll = (TextView) findViewById(R.id.tRoll);
         tPitch = (TextView) findViewById(R.id.tPitch);
-        progPitch = (ProgressBar) findViewById(R.id.progPitch);
-        progRoll = (ProgressBar) findViewById(R.id.progRoll);
-        progRoll.setMax(1);
     }
 
 
@@ -109,6 +99,19 @@ public class IMUActivity extends Activity implements SensorEventListener{
 
     fPitch = event.values[0];
     fRoll= event.values[1];
+
+        //Uncomment for hc-05
+        try
+        {
+            msg("Alter code to connect to hc-05");
+            btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll).getBytes());
+        }
+        catch (IOException e)
+        {
+            msg("Couldn't send angle message");
+        }
+
+
     }
 
     public void displayCleanValues() {
@@ -120,8 +123,6 @@ public class IMUActivity extends Activity implements SensorEventListener{
     public void displayCurrentValues() {
         tRoll.setText(Float.toString(fRoll));
         tPitch.setText(Float.toString(fPitch));
-        progPitch.setProgress(((int) (fPitch*100)));
-        progRoll.setProgress(((int) (fRoll*100)));
     }
 
 

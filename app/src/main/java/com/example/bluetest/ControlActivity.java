@@ -65,15 +65,15 @@ public class ControlActivity extends Activity {
                          float progressFloat = ((float)progress/(float)range_precision) - ((float) maximumRange / 2);
                          textView.setText("   " + String.valueOf(progressFloat)+"\u00B0");
                          //Uncomment for hc-05
-//                         try
-//                         {
+                         try
+                         {
                              msg("Alter code to connect to hc-05");
-                             //btSocket.getOutputStream().write(String.valueOf(progress).getBytes());
-//                         }
-//                         catch (IOException e)
-//                         {
-//                             msg("Couldn't send angle message");
-//                         }
+                             btSocket.getOutputStream().write(String.valueOf("Angle:" + progress).getBytes());
+                         }
+                         catch (IOException e)
+                         {
+                             msg("Couldn't send angle message");
+                         }
                      }
                  }
 
@@ -147,7 +147,7 @@ public class ControlActivity extends Activity {
         @Override
         protected void onPreExecute()
         {
-           progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+       //    progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
         }
 
         @Override
