@@ -19,10 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.UUID;
 
-public class IMUActivity extends Activity implements SensorEventListener{
+public class IMUActivity extends Activity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor rotation_vector;
@@ -30,9 +31,10 @@ public class IMUActivity extends Activity implements SensorEventListener{
     private float fRoll = 0;
     private float fPitch = 0;
 
-    private TextView tRoll, tPitch;
+    private TextView tRoll, tPitch, sensitivityText;
+    private SeekBar sensitivity;
 
-    Button b5,b8,b9;
+    Button b5, b8, b9;
     SeekBar seek1;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
@@ -60,19 +62,58 @@ public class IMUActivity extends Activity implements SensorEventListener{
             // fai! we dont have an rotation_vector!
         }
 
-        b5=(Button)findViewById(R.id.button5);
-        b8=(Button)findViewById(R.id.button8);
-        b9=(Button)findViewById(R.id.button9);
-
-
+        b5 = (Button) findViewById(R.id.button5);
+        b8 = (Button) findViewById(R.id.button8);
+        b9 = (Button) findViewById(R.id.button9);
+        sensitivity = (SeekBar) findViewById(R.id.sensitivity);
 
 
         //Initialise seekbar to 50%
+        sensitivity.setMax(100);
+        sensitivity.setProgress((int) (sensitivity.getProgress() / 2));
 
 
+        sensitivity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser == true) {
+                    TextView textView = findViewById(R.id.sensitivityText);
+                    //textView.setText(String.valueOf((progress/range_precision)-(range_max/2))+"\u00B0");
+                    //float progressFloat = ((float)progress/(float)range_precision) - ((float) maximumRange / 2);
+                    //float progressFloat = ((float)progress - ((float)positionRange/2))/(float)range_precision;///(float)range_precision) - ((float) maximumRange / 2);
+                    //
+                    textView.setText(String.valueOf("   " + (sensitivity.getProgress() - 50)));
+                    try {
+                        //msg("Alter code to connect to hc-05");
+                        btSocket.getOutputStream().write(("pitch=" + fPitch + "roll=" + fRoll + "sensitivity=" + ((float) sensitivity.getProgress()) + "\n").getBytes());
+                    } catch (IOException e) {
+                        msg("Couldn't send angle message");
+                    }
+                    //Uncomment for hc-05
+//                         try
+//                         {
+                    //msg("Alter code to connect to hc-05");
+                    //btSocket.getOutputStream().write(String.valueOf(progress).getBytes());
+//                         }
+//                         catch (IOException e)
+//                         {
+//                             msg("Couldn't send angle message");
+//                         }
+                }
+            }
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 //        Intent newint = getIntent();
-  //      address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS); //receive the address of the bluetooth device
+        //      address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS); //receive the address of the bluetooth device
 
 
     }
@@ -80,9 +121,8 @@ public class IMUActivity extends Activity implements SensorEventListener{
     public void initializeViews() {
         tRoll = (TextView) findViewById(R.id.tRoll);
         tPitch = (TextView) findViewById(R.id.tPitch);
+        sensitivityText = (TextView) findViewById(R.id.sensitivityText);
     }
-
-
 
 
     @Override
@@ -92,22 +132,19 @@ public class IMUActivity extends Activity implements SensorEventListener{
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-    // clean current values
-    displayCleanValues();
-    // display the current x,y rotation_vector values
-    displayCurrentValues();
+        // clean current values
+        displayCleanValues();
+        // display the current x,y rotation_vector values
+        displayCurrentValues();
 
-    fPitch = event.values[0];
-    fRoll= event.values[1];
+        fPitch = event.values[0];
+        fRoll = event.values[1];
 
         //Uncomment for hc-05
-        try
-        {
-            msg("Alter code to connect to hc-05");
-            btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll).getBytes());
-        }
-        catch (IOException e)
-        {
+        try {
+            //  msg("Alter code to connect to hc-05");
+            btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll + "sensitivity=" + sensitivity.getProgress()).getBytes() + "\n");
+        } catch (IOException e) {
             msg("Couldn't send angle message");
         }
 
@@ -126,9 +163,6 @@ public class IMUActivity extends Activity implements SensorEventListener{
     }
 
 
-    
-
-
     private class ConnectBT extends AsyncTask<Void, Void, Void>  // UI thread
     {
         private boolean ConnectSuccess = true; //if it's here, it's almost connected
@@ -136,16 +170,14 @@ public class IMUActivity extends Activity implements SensorEventListener{
         private boolean NonSPPDevice = false; //if it's here, it's almost connected
 
         @Override
-        protected void onPreExecute()
-        {
+        protected void onPreExecute() {
             progress = ProgressDialog.show(IMUActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
         }
 
         @Override
         protected Void doInBackground(Void... devices) //while the progress dialog is shown, the connection is done in background
         {
-            try
-            {
+            try {
                 if (btSocket == null || !isBtConnected) {
 
                     myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
@@ -156,13 +188,12 @@ public class IMUActivity extends Activity implements SensorEventListener{
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     btSocket.connect();//start connection
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 ConnectSuccess = false;//if the try failed, you can check the exception here
             }
             return null;
         }
+
         @Override
         protected void onPostExecute(Void result) //after the doInBackground, it checks if everything went fine
         {
@@ -172,13 +203,10 @@ public class IMUActivity extends Activity implements SensorEventListener{
 
             //NoDevice
 
-            if (!ConnectSuccess)
-            {
+            if (!ConnectSuccess) {
                 msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
                 finish();
-            }
-            else
-            {
+            } else {
                 msg("Connected.");
                 isBtConnected = true;
             }
@@ -188,19 +216,18 @@ public class IMUActivity extends Activity implements SensorEventListener{
 
 
     // fast way to call Toast
-    private void msg(String s)
-    {
-        Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+    private void msg(String s) {
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
     }
 
-    public void position(View v){
+    public void position(View v) {
         // Do something in response to button
         Intent intent = new Intent(this, IMUActivity.class);
         startActivity(intent);
     }
 
 
-    public void angle(View v){
+    public void angle(View v) {
         // Do something in response to button
         Intent intent = new Intent(this, ControlActivity.class);
         startActivity(intent);
