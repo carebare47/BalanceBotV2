@@ -13,6 +13,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -28,14 +29,15 @@ public class IMUActivity extends Activity implements SensorEventListener {
     private SensorManager sensorManager;
     private Sensor rotation_vector;
 
+    public static String EXTRA_ADDRESS = "device_address";
     private float fRoll = 0;
     private float fPitch = 0;
+    private boolean txFlag = false;
 
     private TextView tRoll, tPitch, sensitivityText;
     private SeekBar sensitivity;
 
     Button b5, b8, b9;
-    SeekBar seek1;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
     String address = null;
@@ -72,6 +74,14 @@ public class IMUActivity extends Activity implements SensorEventListener {
         sensitivity.setMax(100);
         sensitivity.setProgress((int) (sensitivity.getProgress() / 2));
 
+        Intent newint = getIntent();
+        address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS); //receive the address of the bluetooth device
+        if (address != null) {
+            new IMUActivity.ConnectBT().execute(); //Call the class to connect
+        }
+
+       // new IMUActivity.TransmitAngle().execute();
+
 
         sensitivity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -82,23 +92,19 @@ public class IMUActivity extends Activity implements SensorEventListener {
                     //float progressFloat = ((float)progress/(float)range_precision) - ((float) maximumRange / 2);
                     //float progressFloat = ((float)progress - ((float)positionRange/2))/(float)range_precision;///(float)range_precision) - ((float) maximumRange / 2);
                     //
-                    textView.setText(String.valueOf("   " + (sensitivity.getProgress() - 50)));
+                    String str = ("   " + (progress - 50));
+                    textView.setText(str);
+                    //textView.setText(String.valueOf("   " + (progress - 50)));
+                   // try {
+
+                        //btSocket.getOutputStream().write(str.getBytes());
                     try {
-                        //msg("Alter code to connect to hc-05");
-                        btSocket.getOutputStream().write(("pitch=" + fPitch + "roll=" + fRoll + "sensitivity=" + ((float) sensitivity.getProgress()) + "\n").getBytes());
-                    } catch (IOException e) {
-                        msg("Couldn't send angle message");
+                        btSocket.getOutputStream().write(String.valueOf("&p=999&r=999&s=" + progress).getBytes());
                     }
-                    //Uncomment for hc-05
-//                         try
-//                         {
-                    //msg("Alter code to connect to hc-05");
-                    //btSocket.getOutputStream().write(String.valueOf(progress).getBytes());
-//                         }
-//                         catch (IOException e)
-//                         {
-//                             msg("Couldn't send angle message");
-//                         }
+                    catch (IOException e){
+                        msg("Can't send sensitivity via bluetooth :c");
+                    }
+
                 }
             }
 
@@ -114,6 +120,9 @@ public class IMUActivity extends Activity implements SensorEventListener {
         });
 //        Intent newint = getIntent();
         //      address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS); //receive the address of the bluetooth device
+
+
+
 
 
     }
@@ -132,24 +141,96 @@ public class IMUActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        // clean current values
-        displayCleanValues();
-        // display the current x,y rotation_vector values
-        displayCurrentValues();
+
+        final Handler UI_update_handler = new Handler();
+        Runnable UI_update = new Runnable() {
+            @Override
+            public void run() {
+                //Uncomment for hc-05
+                // clean current values
+                displayCleanValues();
+                // display the current x,y rotation_vector values
+                displayCurrentValues();
+
+                UI_update_handler.postDelayed(this, 1000);
+            }
+        };
+        UI_update_handler.post(UI_update);
+
 
         fPitch = event.values[0];
         fRoll = event.values[1];
 
-        //Uncomment for hc-05
-        try {
-            //  msg("Alter code to connect to hc-05");
-            btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll + "sensitivity=" + sensitivity.getProgress()).getBytes() + "\n");
-        } catch (IOException e) {
-            msg("Couldn't send angle message");
-        }
+        txFlag = true;
+
+        if (isBtConnected) {
+                    try {
+                        //  msg("Alter code to connect to hc-05");
+                        btSocket.getOutputStream().write(String.valueOf("&p=" + (fPitch) + "&r=" + (fRoll)+ "&s=999").getBytes());
+                        //btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll).getBytes());
+                    } catch (IOException e) {
+                        msg("Couldn't send angle message");
+                    }
+                }
+
+
+//
+//        final Handler handler = new Handler();
+//        Runnable task = new Runnable() {
+//            @Override
+//            public void run() {
+//                //Uncomment for hc-05
+//                if (isBtConnected) {
+//                    try {
+//                        //  msg("Alter code to connect to hc-05");
+//                        btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll + "\n").getBytes());
+//                        //btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll).getBytes());
+//                    } catch (IOException e) {
+//                        msg("Couldn't send angle message");
+//                    }
+//                }
+//                handler.postDelayed(this, 200);
+//            }
+//        };
+//        handler.post(task);
 
 
     }
+
+//        private class TransmitAngle extends AsyncTask<Void, Void, Void> {
+//
+//            @Override
+//            protected Void doInBackground(Void... devices) {
+//                if (isBtConnected && txFlag) {
+//                    try {
+//                        //  msg("Alter code to connect to hc-05");
+//                        btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll + "\n").getBytes());
+//                        //btSocket.getOutputStream().write(String.valueOf("pitch=" + fPitch + "roll=" + fRoll).getBytes());
+//                    } catch (IOException e) {
+//                        msg("Couldn't send angle message");
+//                    }
+//                }
+//                txFlag = false;
+//                return null;
+//            }
+//
+//            protected void onProgressUpdate() {
+//                //setProgressPercent(progress[0]);
+//                msg("Message sent:");
+//
+//            }
+//
+//            protected void onPostExecute(Void result) {
+//                super.onPostExecute(result);
+//                //showDialog("Downloaded " + result + " bytes");
+//                msg("post");
+//            }
+//        }
+
+
+
+
+
 
     public void displayCleanValues() {
         tRoll.setText("0.0");
@@ -166,34 +247,35 @@ public class IMUActivity extends Activity implements SensorEventListener {
     private class ConnectBT extends AsyncTask<Void, Void, Void>  // UI thread
     {
         private boolean ConnectSuccess = true; //if it's here, it's almost connected
-        private boolean NoDevice = false; //if it's here, it's almost connected
-        private boolean NonSPPDevice = false; //if it's here, it's almost connected
 
         @Override
-        protected void onPreExecute() {
-            progress = ProgressDialog.show(IMUActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+        protected void onPreExecute()
+        {
+                //progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+            msg("Connecting, please wait...");
         }
 
         @Override
         protected Void doInBackground(Void... devices) //while the progress dialog is shown, the connection is done in background
         {
-            try {
+            try
+            {
                 if (btSocket == null || !isBtConnected) {
 
                     myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
                     BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
 
-                    //btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection //use this for the hc-05
-                    btSocket = dispositivo.createRfcommSocketToServiceRecord(myUUID);
+                    btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection                     // btSocket = dispositivo.createRfcommSocketToServiceRecord(myUUID);
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     btSocket.connect();//start connection
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 ConnectSuccess = false;//if the try failed, you can check the exception here
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(Void result) //after the doInBackground, it checks if everything went fine
         {
@@ -203,15 +285,37 @@ public class IMUActivity extends Activity implements SensorEventListener {
 
             //NoDevice
 
-            if (!ConnectSuccess) {
+            if (!ConnectSuccess)
+            {
                 msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
                 finish();
-            } else {
+            }
+            else
+            {
                 msg("Connected.");
                 isBtConnected = true;
             }
             //  progress.dismiss();
         }
+    }
+
+
+    private void disconnect() {
+//        if (mBTInputStream != null) {
+//            try {mBTInputStream.close();} catch (Exception e) {}
+//            mBTInputStream = null;
+//        }
+//
+//        if (mBTOutputStream != null) {
+//            try {mBTOutputStream.close();} catch (Exception e) {}
+//            mBTOutputStream = null;
+//        }
+
+        if (btSocket != null) {
+            try {btSocket.close();} catch (Exception e) {}
+            btSocket = null;
+        }
+
     }
 
 
@@ -222,15 +326,28 @@ public class IMUActivity extends Activity implements SensorEventListener {
 
     public void position(View v) {
         // Do something in response to button
-        Intent intent = new Intent(this, IMUActivity.class);
-        startActivity(intent);
+        Intent i = new Intent(IMUActivity.this, PositionActivity.class);
+
+        //Change the activity.
+        i.putExtra(EXTRA_ADDRESS, address); //this will be received at ledControl (class) Activity
+        startActivity(i);
+
+        //Intent intent = new Intent(this, IMUActivity.class);
+        //startActivity(intent);
     }
 
 
     public void angle(View v) {
+        disconnect();
+        Intent i = new Intent(IMUActivity.this, ControlActivity.class);
+
+        //Change the activity.
+        i.putExtra(EXTRA_ADDRESS, address); //this will be received at ledControl (class) Activity
+        startActivity(i);
+
         // Do something in response to button
-        Intent intent = new Intent(this, ControlActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, ControlActivity.class);
+  //      startActivity(intent);
     }
 
 }

@@ -24,10 +24,11 @@ public class ControlActivity extends Activity {
     SeekBar seek1;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
+    BluetoothDevice dispositivo = null;
     String address = null;
     //Integer range_max = this.getResources().getInteger(R.integer.range_max);
     //Integer range_min = R.integer.range_min;
-    Integer range_precision = 100;
+    Integer range_precision = 1000;
     private boolean isBtConnected = false;
     private ProgressDialog progress;
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -58,21 +59,19 @@ public class ControlActivity extends Activity {
         seek1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                  @Override
                  public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                     if (fromUser==true)
-                     {
+                     if (fromUser==true) {
                          TextView textView = findViewById(R.id.textView5);
                          //textView.setText(String.valueOf((progress/range_precision)-(range_max/2))+"\u00B0");
-                         float progressFloat = ((float)progress/(float)range_precision) - ((float) maximumRange / 2);
-                         textView.setText("   " + String.valueOf(progressFloat)+"\u00B0");
+                         float progressFloat = ((float) progress / (float) range_precision) - ((float) maximumRange / 2);
+                         textView.setText("   " + String.valueOf(progressFloat) + "\u00B0");
                          //Uncomment for hc-05
-                         try
-                         {
-                             msg("Alter code to connect to hc-05");
-                             btSocket.getOutputStream().write(String.valueOf("Angle:" + progress).getBytes());
-                         }
-                         catch (IOException e)
-                         {
-                             msg("Couldn't send angle message");
+                         if (isBtConnected) {
+                             try {
+                                 //msg("Alter code to connect to hc-05");
+                                 btSocket.getOutputStream().write(String.valueOf("&r=" + (progress - 500)).getBytes());
+                             } catch (IOException e) {
+                                 msg("Couldn't send angle message");
+                             }
                          }
                      }
                  }
@@ -94,15 +93,35 @@ public class ControlActivity extends Activity {
 
     }
 
+    private void disconnect() {
+//        if (mBTInputStream != null) {
+//            try {mBTInputStream.close();} catch (Exception e) {}
+//            mBTInputStream = null;
+//        }
+//
+//        if (mBTOutputStream != null) {
+//            try {mBTOutputStream.close();} catch (Exception e) {}
+//            mBTOutputStream = null;
+//        }
+
+        if (btSocket != null) {
+            try {btSocket.close();} catch (Exception e) {}
+            btSocket = null;
+        }
+
+    }
+
 
     public void position(View v){
         // Do something in response to button
+        disconnect();
         Intent intent = new Intent(this, PositionActivity.class);
         startActivity(intent);
     }
 
 
     public void angle(View v){
+        disconnect();
         // Do something in response to button
         Intent intent = new Intent(this, ControlActivity.class);
         startActivity(intent);
@@ -110,6 +129,7 @@ public class ControlActivity extends Activity {
 
 
     public void imu(View v){
+        disconnect();
         // Do something in response to button
         Intent intent = new Intent(this, IMUActivity.class);
         startActivity(intent);
@@ -147,7 +167,7 @@ public class ControlActivity extends Activity {
         @Override
         protected void onPreExecute()
         {
-       //    progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+           progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
         }
 
         @Override
@@ -158,7 +178,7 @@ public class ControlActivity extends Activity {
                 if (btSocket == null || !isBtConnected) {
 
                         myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                        BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
+                        dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
 
                         btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection //use this for the hc-05
                        // btSocket = dispositivo.createRfcommSocketToServiceRecord(myUUID);

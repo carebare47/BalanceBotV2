@@ -1714,7 +1714,7 @@ public final class R {
      * <tr><td>barrier</td><td>2</td><td></td></tr>
      * <tr><td>chains</td><td>4</td><td></td></tr>
      * <tr><td>dimensions</td><td>8</td><td></td></tr>
-     * <tr><td>direct</td><td>1</td><td></td></tr>
+     * <tr><td>direct</td><td>1</td><td>for now only direct & barriers</td></tr>
      * <tr><td>none</td><td>0</td><td></td></tr>
      * <tr><td>standard</td><td>3</td><td></td></tr>
      * </table>
@@ -3133,20 +3133,22 @@ public final class R {
     public static final int textView=0x7f070095;
     public static final int textView2=0x7f070096;
     public static final int textView3=0x7f070097;
-    public static final int textView5=0x7f070098;
-    public static final int textview=0x7f070099;
-    public static final int time=0x7f07009a;
-    public static final int title=0x7f07009b;
-    public static final int titleDividerNoCustom=0x7f07009c;
-    public static final int title_template=0x7f07009d;
-    public static final int top=0x7f07009e;
-    public static final int topPanel=0x7f07009f;
-    public static final int uniform=0x7f0700a0;
-    public static final int up=0x7f0700a1;
-    public static final int useLogo=0x7f0700a2;
-    public static final int withText=0x7f0700a3;
-    public static final int wrap=0x7f0700a4;
-    public static final int wrap_content=0x7f0700a5;
+    public static final int textView4=0x7f070098;
+    public static final int textView5=0x7f070099;
+    public static final int textView6=0x7f07009a;
+    public static final int textview=0x7f07009b;
+    public static final int time=0x7f07009c;
+    public static final int title=0x7f07009d;
+    public static final int titleDividerNoCustom=0x7f07009e;
+    public static final int title_template=0x7f07009f;
+    public static final int top=0x7f0700a0;
+    public static final int topPanel=0x7f0700a1;
+    public static final int uniform=0x7f0700a2;
+    public static final int up=0x7f0700a3;
+    public static final int useLogo=0x7f0700a4;
+    public static final int withText=0x7f0700a5;
+    public static final int wrap=0x7f0700a6;
+    public static final int wrap_content=0x7f0700a7;
   }
   public static final class integer {
     public static final int abc_config_activityDefaultDur=0x7f080000;
@@ -7774,7 +7776,7 @@ public final class R {
      * <tr><td>barrier</td><td>2</td><td></td></tr>
      * <tr><td>chains</td><td>4</td><td></td></tr>
      * <tr><td>dimensions</td><td>8</td><td></td></tr>
-     * <tr><td>direct</td><td>1</td><td></td></tr>
+     * <tr><td>direct</td><td>1</td><td>for now only direct & barriers</td></tr>
      * <tr><td>none</td><td>0</td><td></td></tr>
      * <tr><td>standard</td><td>3</td><td></td></tr>
      * </table>

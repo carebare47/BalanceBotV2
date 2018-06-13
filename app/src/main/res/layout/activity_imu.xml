@@ -97,5 +97,35 @@
         app:layout_constraintBottom_toTopOf="@+id/sensitivity"
         app:layout_constraintStart_toStartOf="@+id/sensitivity" />
 
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="49dp"
+        android:layout_height="22dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Pitch"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/tPitch"
+        app:layout_constraintEnd_toEndOf="@+id/tPitch"
+        app:layout_constraintStart_toStartOf="@+id/tPitch" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="49dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Roll"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/tRoll"
+        app:layout_constraintEnd_toEndOf="@+id/tRoll"
+        app:layout_constraintStart_toStartOf="@+id/tRoll" />
+
 
 </android.support.constraint.ConstraintLayout>
