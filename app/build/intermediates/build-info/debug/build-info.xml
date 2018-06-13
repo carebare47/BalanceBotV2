@@ -7,22 +7,22 @@
     format="10"
     ir-eligibility="COMPATIBLE"
     plugin-version="3.1.2"
-    timestamp="1528872545943"
+    timestamp="1528887791108"
     token="8459841865871397877"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="64" />
+        duration="203" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="4" />
+        duration="9" />
     <task
         name="verifier"
-        duration="4" />
+        duration="3" />
 
     <artifact
         location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
@@ -30,8 +30,11 @@
 
     <build
         build-mode="FULL"
-        timestamp="1528871761462"
+        timestamp="1528886979663"
         verifier="FULL_BUILD_REQUESTED" >
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
+            type="SPLIT" />
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_3.apk"
             type="SPLIT" />
@@ -63,16 +66,13 @@
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
             type="SPLIT" />
         <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
-            type="SPLIT" />
-        <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/instant-run-apk/debug/app-debug.apk"
             type="SPLIT_MAIN" />
     </build>
     <build
         build-mode="COLD"
         ir-eligibility="COMPATIBLE"
-        timestamp="1528872545943"
+        timestamp="1528887791108"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
