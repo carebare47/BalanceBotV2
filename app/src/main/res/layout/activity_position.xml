@@ -78,4 +78,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="29dp"
+        android:layout_height="36dp"
+        android:text="/u00B1"
+        android:textSize="8sp"
+        tools:layout_editor_absoluteX="78dp"
+        tools:layout_editor_absoluteY="244dp"
+        tools:text="U+000B1" />
+
 </android.support.constraint.ConstraintLayout>

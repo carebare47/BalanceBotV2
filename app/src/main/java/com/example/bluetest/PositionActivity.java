@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class PositionActivity extends Activity {
-    Button b5,b8,b9;
+    Button b5,b8,b9,b7;
     SeekBar seek1;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
@@ -38,6 +38,7 @@ public class PositionActivity extends Activity {
         b5=(Button)findViewById(R.id.button5);
         b8=(Button)findViewById(R.id.button8);
         b9=(Button)findViewById(R.id.button9);
+        b7=(Button)findViewById(R.id.button7);
         seek1=(SeekBar)findViewById(R.id.seekBar2);
         final int positionRange = this.getResources().getInteger(R.integer.position_range);
 
@@ -46,6 +47,11 @@ public class PositionActivity extends Activity {
         //Initialise seekbar to 50%
 
         seek1.setProgress(seek1.getMax()/2);
+
+        ///?????
+        TextView textView = findViewById(R.id.button7);
+        textView.setText("\u00B1 5");
+
 
         Intent newint = getIntent();
         address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS); //receive the address of the bluetooth device
@@ -165,6 +171,12 @@ public class PositionActivity extends Activity {
     public void angle(View v){
         // Do something in response to button
         Intent intent = new Intent(this, ControlActivity.class);
+        startActivity(intent);
+    }
+
+    public void imu(View v){
+        // Do something in response to button
+        Intent intent = new Intent(this, IMUActivity.class);
         startActivity(intent);
     }
 

@@ -111,10 +111,9 @@ public class ControlActivity extends Activity {
 
     public void imu(View v){
         // Do something in response to button
-        //Intent intent = new Intent(this, IMUActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, IMUActivity.class);
+        startActivity(intent);
     }
-
     // fast way to call Toast
     private void msg(String s)
     {
@@ -161,8 +160,8 @@ public class ControlActivity extends Activity {
                         myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
                         BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
 
-                        //btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection //use this for the hc-05
-                        btSocket = dispositivo.createRfcommSocketToServiceRecord(myUUID);
+                        btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection //use this for the hc-05
+                       // btSocket = dispositivo.createRfcommSocketToServiceRecord(myUUID);
                         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                         btSocket.connect();//start connection
                 }
