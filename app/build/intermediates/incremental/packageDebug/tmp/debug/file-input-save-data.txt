@@ -1,17 +1,17 @@
 #Internal package file, do not edit.
-#Wed Jun 13 07:03:43 BST 2018
-2.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/203
+#Wed Jun 13 07:32:43 BST 2018
+2.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/223
 5.set=DEX
 0.path=classes.dex
 2.baseType=DIRECTORY
-3.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/206
+3.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/226
 2.set=DEX
 1.path=classes.dex
-4.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/204
+4.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/221
 count=6
 5.baseType=DIRECTORY
 2.path=classes.dex
-5.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/202
+5.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/224
 4.set=DEX
 3.path=classes.dex
 3.baseType=DIRECTORY
@@ -19,9 +19,9 @@ count=6
 4.path=classes.dex
 1.baseType=DIRECTORY
 5.path=classes.dex
-0.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/207
+0.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/222
 0.baseType=DIRECTORY
 3.set=DEX
-1.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/205
+1.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/225
 4.baseType=DIRECTORY
 0.set=DEX

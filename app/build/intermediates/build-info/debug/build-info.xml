@@ -5,24 +5,24 @@
     build-mode="COLD"
     density="xxhdpi"
     format="10"
-    ir-eligibility="METHOD_ADDED"
+    ir-eligibility="COMPATIBLE"
     plugin-version="3.1.2"
-    timestamp="1528869931772"
+    timestamp="1528872545943"
     token="8459841865871397877"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="48" />
+        duration="64" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="7" />
+        duration="4" />
     <task
         name="verifier"
-        duration="1" />
+        duration="4" />
 
     <artifact
         location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
@@ -30,41 +30,40 @@
 
     <build
         build-mode="FULL"
-        ir-eligibility="FIELD_ADDED"
-        timestamp="1528869821772"
-        verifier="COLD_SWAP_REQUESTED" >
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/dep/dependencies.apk"
-            type="SPLIT" />
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
-            type="SPLIT" />
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_1.apk"
-            type="SPLIT" />
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_4.apk"
-            type="SPLIT" />
+        timestamp="1528871761462"
+        verifier="FULL_BUILD_REQUESTED" >
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_3.apk"
             type="SPLIT" />
         <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_2.apk"
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/dep/dependencies.apk"
             type="SPLIT" />
         <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
-            type="SPLIT" />
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_0.apk"
-            type="SPLIT" />
-        <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_7.apk"
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_8.apk"
             type="SPLIT" />
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_9.apk"
             type="SPLIT" />
         <artifact
-            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_8.apk"
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_2.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_0.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_1.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_7.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_4.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
+            type="SPLIT" />
+        <artifact
+            location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
             type="SPLIT" />
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/instant-run-apk/debug/app-debug.apk"
@@ -72,8 +71,8 @@
     </build>
     <build
         build-mode="COLD"
-        ir-eligibility="METHOD_ADDED"
-        timestamp="1528869931772"
+        ir-eligibility="COMPATIBLE"
+        timestamp="1528872545943"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
