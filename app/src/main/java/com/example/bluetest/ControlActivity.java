@@ -167,7 +167,7 @@ public class ControlActivity extends Activity {
         @Override
         protected void onPreExecute()
         {
-           progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+           //progress = ProgressDialog.show(ControlActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
         }
 
         @Override

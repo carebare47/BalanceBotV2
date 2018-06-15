@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Wed Jun 13 07:03:43 BST 2018
+#Fri Jun 15 20:45:30 BST 2018
 2.base=/home/tom/AndroidStudioProjects/blueTest/app/build/intermediates/transforms/dexMerger/debug/203
 5.set=DEX
 0.path=classes.dex

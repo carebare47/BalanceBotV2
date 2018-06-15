@@ -24,6 +24,7 @@
 #include <Wire.h>
 #include <L298N.h>
 
+//#define IMU_test
 
 //#include "LMotorController.h"
 //#include "I2Cdev.h"
@@ -55,9 +56,9 @@
 
 
 //pin definition
-#define lEN 9
-#define lIN1 8
-#define lIN2 7
+#define lEN 5
+#define lIN1 3
+#define lIN2 4
 
 #define rEN 9
 #define rIN1 8
@@ -65,7 +66,8 @@
 L298N right_motor(rEN, rIN1, rIN2);
 L298N left_motor(lEN, lIN1, lIN2);
 
-#define aHome = 178
+//#define aHome 186
+#define aHome 195
 
 
 const byte leftIntPin = 2;
@@ -81,12 +83,14 @@ MPU6050 mpu6050(Wire);
 
 /*-----( PID variables )------*/
 //Define Variables we'll be connecting to
-double aSetpoint, aInput, aOutput;
+
+double aInput, aOutput;
 double pSetpoint, pInput, pOutput;
-aSetpoint = aHome;
+double aSetpoint = aHome;
+
 
 //Specify the links and initial tuning parameters
-double aKp = 5, aKi = 2, aKd = 1;
+double aKp = 300, aKi = 2, aKd = 1;
 double pKp = 2, pKi = 1, pKd = 1;
 PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
@@ -139,7 +143,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   Serial.println("Enter AT commands in top window.");
   Wire.begin();
   mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
+  //mpu6050.calcGyroOffsets(true);
   BTSerial.begin(9600);  // HC-05 default speed in AT command mode
 
   PIDa.SetMode(AUTOMATIC);
@@ -155,6 +159,18 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   timer_x = millis();
 
 
+//left_motor.setSpeed(140);
+//left_motor.forward();
+//delay(1000);
+//left_motor.stop();
+//left_motor.backward();
+//delay(500);
+//left_motor.setSpeed(240);
+//delay(250);
+//left_motor.setSpeed(100);
+//delay(250);
+//left_motor.stop();
+Serial.println("Setup finished");
 
 
 }//--(end setup )---
@@ -178,6 +194,22 @@ int duration = 200;
 void do_robot_go(void);
 void loop()   /****** LOOP: RUNS CONSTANTLY ******/
 {
+
+  mpu6050.update();
+ // aInput = mpu6050.getAngleX();//Probably wrong axis
+
+//  Serial.print("X:");
+//  Serial.println(mpu6050.getAngleX());
+//  Serial.print("Y:");
+//  Serial.println(mpu6050.getAngleY());
+//  Serial.print("Z:");
+//  Serial.println(mpu6050.getAngleZ());
+
+
+
+
+
+
   timer1 = millis() - timer1;
   // READ from HC-05 and WRITE to Arduino Serial Monitor
   if (BTSerial.available()) {
@@ -213,15 +245,21 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
               roll = fPosition;
               rollRX = true;
               aSetpoint = roll;
+              Serial.print("roll");
+              Serial.println(fPosition);
               //Serial.print(position); Serial.print(",");
               break;
             case 'p':
               pitch = fPosition;
               pSetpoint = pitch;
               pitchRX = true;
+              Serial.print("pitch");
+              Serial.println(fPosition);
               //Serial.print(position); Serial.print(",");
               break;
             case 'x':
+              Serial.print("x");
+              Serial.println(fPosition);
               x_position = fPosition;
               x_posRX = true;
               break;
@@ -254,9 +292,12 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
   }
 
 
+//pitchRX2 = true;
+//x_posRX = false;
 
-  timer_x = millis();
-  if ((pitchRX2 && rollRX2) && (!x_posRX)) {
+  if ((pitchRX2 || rollRX2) && (!x_posRX)) {
+    timer_x = millis();
+    int tracker = (int)((lCount + rCount ) / 2); //???
     if (roll > 1.0) {
       roll = 1.0;
     }
@@ -280,6 +321,7 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
 
     int y = map(int(roll * 100), 0, 100, 0, 254);
     analogWrite(13, y);
+    //Maybe put offsets here sometime?
     //    -0.2
     //    -0.65
     //
@@ -293,51 +335,108 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
     Serial.println(pitch);
     pitchRX2 = false;
     rollRX2 = false;
+   // delay(10);
 
 
   } else if (x_posRX) {
-
+    timer_x = millis();
 
     //Below line should go: While robot isn't settled at it's goal...
-    while (x_position > current_pos.writeThisFunction()) {
-      aSetpoint = aHome;
-      pSetpoint = x_position;
-      do_robot_go();
-}
+    aSetpoint = aHome; //upright
+    pSetpoint = x_position; //where we've told it to go
+//    do_robot_go(); //go do robot
 
+    //If we lose contact for 750ms, give angle mode a chance to take over.
+    if ((millis() - timer_x) > 700) {
+      x_posRX = false;
+    }
+
+
+  } else if (((!x_posRX) && (!pitchRX2) && (!rollRX2)) && ((millis() - timer_x) > 800)) {
+
+
+    stop_robot(timer_x);
+    pSetpoint = x_position; //where we've told it to go last hopefully
+    aSetpoint = aHome;
+  }
+
+do_robot_go(); //go do robot
 
 
 
 
 }//--(end main loop )---
 
-
-void do_robot_go(void){
-  
+int whereAmI(void) {
+  int tracker = (int)((lCount + rCount ) / 2);
+  return tracker;
 }
+
+bool haltPos = true;
+void stop_robot(int timer) {
+  if (haltPos) {
+    x_position = whereAmI();
+  }
+
+  //don't keep taking new readings or we'll at best drift into something
+  haltPos = false;
+
+  //if we've got a connection back
+  if ((millis() - timer) < 7) {
+    //Allow the next connection break to halt us once more
+    haltPos = true;
+  }
+}
+
+
+void do_robot_go(void) {
+
+
   int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
   mpu6050.update();
-  aInput = mpu6050.getAngleX();//Probably wrong axis
+  aInput = ((mpu6050.getAngleX())+200);//Probably wrong axis
   pInput = tracker;//write this function
   PIDa.Compute();
-  PIDp.Compute();
-      
-  
+  //PIDp.Compute();
+  //Serial.println("");
+
+
+
+
   //pSetpoint = 0;
   //pInput = tracker;
   //PIDp.Compute();
   float angleWeight = 0.8;
   float positionWeight = 0.2;
-  float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
+  //float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
+  float fSpeed = aOutput;
   if (fSpeed > 0.0) {
     right_motor.forward();
     left_motor.backward();
   } else if (fSpeed < 0.0) {
     right_motor.backward();
     left_motor.forward();
+    fSpeed = fSpeed - ((2)*fSpeed);
   }
   right_motor.setSpeed(fSpeed);
   left_motor.setSpeed(fSpeed);
+
+    Serial.write(27);       // ESC command
+  Serial.print("[2J");    // clear screen command
+  Serial.write(27);
+  Serial.print("[H");     // cursor to home command
+  Serial.print("Input:");
+  Serial.print(aInput);
+  Serial.print("\tSetpoint:");
+  Serial.print(aSetpoint);
+  Serial.print("\tOutput:");
+  Serial.print(fSpeed);
+
+  for (int i=0; i < 10; i++){
+    Serial.println("");
+  }
+  delay(50);
+
 }
 /*-----( Declare User-written Functions )-----*/
 //NONE
