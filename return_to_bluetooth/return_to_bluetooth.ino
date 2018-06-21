@@ -1,14 +1,15 @@
 #include <PID_v1.h>
 #include <L298N.h>
+#include <SoftwareSerial.h>
 
 //#define properStart
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////PIN MAPPINGS///////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////Bluetooth pins
-//#define HC_05_TXD_ARDUINO_RXD 15
-//#define HC_05_RXD_ARDUINO_TXD 14
-//#define HC_05_SETUPKEY        17
+#define HC_05_TXD_ARDUINO_RXD 15
+#define HC_05_RXD_ARDUINO_TXD 14
+#define HC_05_SETUPKEY        17
 //
 
 //Left motor pins
@@ -29,6 +30,8 @@
 #define rIntPin 4
 #define rDirPin 9
 
+#define INPUT_SIZE 30
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////END OF PIN MAPPINGS////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +45,7 @@
 //46.3
 //#define angleMax -45.56
 //#define aHome -45.6
-float aHome = -45.6;
+float aHome = -45.65;
 //#define angleMin -45.63
 //45.5
 //46.3
@@ -50,6 +53,16 @@ volatile bool lFlag = false;
 volatile bool rFlag = false;
 volatile signed long lCount = 0;
 volatile signed long rCount = 0;
+
+bool rollRX = false;
+bool pitchRX = false;
+bool sensRX = false;
+bool x_posRX = true;
+
+float x_position = 0.0;
+float roll = 0;
+float pitch = 0;
+int sensitivity = 0;
 
 /*-----( PID variables )------*/
 //Define Variables we'll be connecting to
@@ -62,7 +75,7 @@ double aSetpoint = aHome;
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
 //double pKp = 0.5 , pKi = 0, pKd = 0;
-double aKp = 2.5, aKi = 3, aKd = 0.36;
+double aKp = 7.0, aKi = 7.0, aKd = 0.40;
 //double aKp = 70 , aKi = 140, aKd = 4.9;
 
 //double aKp = 40 , aKi = 0.0, aKd = 0.0;
@@ -73,11 +86,11 @@ PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 L298N right_motor(rEN, rIN1, rIN2);
 L298N left_motor(lEN, lIN1, lIN2);
 /*-----( Declare objects )-----*/
-//SoftwareSerial BTSerial(HC_05_TXD_ARDUINO_RXD, HC_05_RXD_ARDUINO_TXD); // RX | TX
+SoftwareSerial BTSerial(HC_05_TXD_ARDUINO_RXD, HC_05_RXD_ARDUINO_TXD); // RX | TX
 /*-----( Declare Variables )-----*/
-//char inData[80];
-//char commandString[80];
-//byte index = 0;
+char inData[80];
+char commandString[80];
+byte index = 0;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////MPU6050 STUFF//////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,6 +291,15 @@ void setup() {
   Serial.println("Setup complete!");
 
   PIDa.SetSampleTime(10);
+
+  /////////////////////////////
+  ///////////Bluetooth////////
+  /////////////////////////////
+  pinMode(HC_05_SETUPKEY, OUTPUT);  // this pin will pull the HC-05 pin 34 (key pin) HIGH to switch module to AT mode
+  digitalWrite(HC_05_SETUPKEY, HIGH);  // Set command mode when powering up
+  BTSerial.begin(9600);  // HC-05 default speed in AT command mode
+
+
 }
 char incomingByte = 'x';
 #define MAX_INPUT 10
@@ -420,6 +442,17 @@ void process_data (const char * data)
       //stopFlag = false;
       iTune = 5;
       break;
+    case 'h':
+      aSetpoint += 0.1;
+      break;
+    case 'j':
+      //stopFlag = false;
+      aSetpoint = aHome;
+      break;
+    case 'k':
+      aSetpoint -= 0.1;
+      break;
+
 
   }
 
@@ -460,6 +493,90 @@ void processIncomingByte (const byte inByte)
   }  // end of switch
 
 } // end of processIncomingByte
+
+void bluetoothSerialExecute(char ID, int iPosition, float fPosition) {
+  if (iPosition != 999) {
+    switch (ID) {
+      case 's':
+        sensitivity = iPosition;
+        //sensRX = true;
+        // Serial.print(position); Serial.print(",");
+        break;
+      case 'r':
+        roll = fPosition;
+        rollRX = true;
+        aSetpoint = aHome + roll;
+        Serial.print("offset");
+        Serial.println(fPosition);
+        Serial.print("setpoint");
+        Serial.println(aSetpoint);
+        //Serial.print(position); Serial.print(",");
+        break;
+      case 'p':
+        pitch = fPosition;
+        aSetpoint = aHome;
+        //        pSetpoint = pitch;
+        pitchRX = true;
+        Serial.print("pitch");
+        Serial.println(fPosition);
+        //Serial.print(position); Serial.print(",");
+        break;
+      case 'x':
+        Serial.print("x");
+        Serial.println(fPosition);
+        x_position = fPosition;
+        x_posRX = true;
+        break;
+    }
+    //
+    //    if (pitchRX) {
+    //      pitchRX2 = true;
+    //    }
+    //    if (rollRX) {
+    //      rollRX2 = true;
+    //    }
+    //    rollRX = false;
+    //    pitchRX = false;
+    //char buf[INPUT_SIZE + 1];
+    //sprintf(buf, "%s = %d", &command[0], position);
+    //Serial.write(buf);
+    // Do something with servoId and position
+  }
+}
+
+void checkBluetoothSerial(void) {
+  // READ from HC-05 and WRITE to Arduino Serial Monitor
+  if (BTSerial.available()) {
+
+    // Get next command from Serial (add 1 for final 0)
+    char input[INPUT_SIZE + 1];
+    byte size = BTSerial.readBytes(input, INPUT_SIZE);
+    // Add the final 0 to end the C string
+    input[size] = 0;
+
+    // Read each command pair
+    char* command = strtok(input, "&");
+    while (command != 0)
+    {
+      // Split the command in two values
+      char* separator = strchr(command, '=');
+      if (separator != 0)
+      {
+        // Actually split the string in 2: replace ':' with 0
+        *separator = 0;
+        char ID = command[0];
+        ++separator;
+        int iPosition = atoi(separator);
+        float fPosition = atof(separator);
+        bluetoothSerialExecute(ID, iPosition, fPosition);
+      }
+      // Find the next command in input string
+      command = strtok(0, "&");
+    }
+
+  }
+
+}
 void loop() {
   // if programming failed, don't try to do anything
   if (!dmpReady) return;
@@ -506,6 +623,10 @@ void loop() {
     //
     //
     //if (incomingByte == 'c') {
+
+
+
+
     PIDa.Compute();
     if (stopFlag == true) {
       left_motor.stop();

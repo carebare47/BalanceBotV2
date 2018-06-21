@@ -43,6 +43,7 @@
 //#define angleMax -45.56
 //#define aHome -45.6
 float aHome = -45.6;
+float constHome = -45.6;
 //#define angleMin -45.63
 //45.5
 //46.3
@@ -55,18 +56,19 @@ volatile signed long rCount = 0;
 //Define Variables we'll be connecting to
 
 double aInput, aOutput;
+double pInput, pSetpoint = 0, pOutput;
 //double pSetpoint, pInput, pOutput;
 double aSetpoint = aHome;
 
 
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
-//double pKp = 0.5 , pKi = 0, pKd = 0;
-double aKp = 2.5, aKi = 3, aKd = 0.36;
+double pKp = 3.0, pKi = 3.0, pKd = 0.1;
+double aKp = 7.0, aKi = 7.0, aKd = 0.40;
 //double aKp = 70 , aKi = 140, aKd = 4.9;
 
 //double aKp = 40 , aKi = 0.0, aKd = 0.0;
-//PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
+PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 
 
@@ -255,8 +257,14 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   PIDa.SetMode(AUTOMATIC);
-  //PIDa.SetOutputLimits(-255, 255);
   PIDa.SetOutputLimits(-90, 90);
+  //Ahaha!!!
+  PIDa.SetSampleTime(10);
+  //Position loop
+  PIDp.SetMode(AUTOMATIC);
+  PIDp.SetOutputLimits(-100, 100);
+  PIDp.SetSampleTime(50);
+
 #ifdef properStart
   Serial.println("Waiting five seconds for IMU to stabalize...");
   for (int i = 0; i < 10; i++) {
@@ -277,7 +285,22 @@ void setup() {
 #endif
   Serial.println("Setup complete!");
 
-  PIDa.SetSampleTime(10);
+
+
+
+  pinMode(lIntPin, INPUT_PULLUP);
+
+
+  // pin change interrupt (D12)
+  PCMSK0 |= bit (PCINT4);  // want pin 12
+  PCIFR  |= bit (PCIF0);    // clear any outstanding interrupts
+  PCICR  |= bit (PCIE0);    // enable pin change interrupts for D8 to D12
+
+  // pin change interrupt (D4)
+  PCMSK2 |= bit (PCINT20);  // want pin 4
+  PCIFR  |= bit (PCIF2);    // clear any outstanding interrupts
+  PCICR  |= bit (PCIE2);    // enable pin change interrupts for D0 to D7
+
 }
 char incomingByte = 'x';
 #define MAX_INPUT 10
@@ -289,7 +312,7 @@ char incomingByte = 'x';
 bool stopFlag = true;
 bool pFlag = false, iFlag = false, dFlag = false;
 int iTune = 99;
-bool printFlag = false;
+bool printFlag = false, printFlag_2 = false;
 void process_data (const char * data)
 {
   // for now just display it
@@ -323,29 +346,29 @@ void process_data (const char * data)
 
     switch (iTune) {
       case 0:
-        aKp = Serial.parseFloat();
+        pKp = Serial.parseFloat();
         iTune = 99;
         break;
       case 1:
-        aKi = Serial.parseFloat();
+        pKi = Serial.parseFloat();
         iTune = 99;
         break;
       case 2:
-        aKd = Serial.parseFloat();
+        pKd = Serial.parseFloat();
         iTune = 99;
         break;
       case 5:
-        aHome = Serial.parseFloat();
+        pSetpoint = Serial.parseFloat();
         iTune = 99;
         break;
     }
-    PIDa.SetTunings(aKp, aKi, aKd);
+    PIDp.SetTunings(pKp, pKi, pKd);
     Serial.print("New PID values: Kp = ");
-    Serial.print(aKp);
+    Serial.print(pKp);
     Serial.print(" Ki = ");
-    Serial.print(aKi);
+    Serial.print(pKi);
     Serial.print(" Kd = ");
-    Serial.println(aKd);
+    Serial.println(pKd);
     Serial.print("Setpoint: ");
     Serial.println(aHome);
 
@@ -361,55 +384,65 @@ void process_data (const char * data)
       stopFlag = true;
       iTune = 99;
       break;
+    case 'x':
+      lCount = 0;
+      break;
     case 'l':
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
+      Serial.print("New PID values: Kp = ");
+      Serial.print(pKp);
       Serial.print(" Ki = ");
-      Serial.print(aKi);
+      Serial.print(pKi);
       Serial.print(" Kd = ");
-      Serial.println(aKd);
+      Serial.println(pKd);
       Serial.print("Setpoint: ");
       Serial.println(aHome);
       break;
     case 'q':
-      printFlag = true;
+      printFlag = !printFlag_2;
+      break;
+    case 'w':
+      printFlag_2 = !printFlag_2;
       break;
     case 'p':
       pFlag = true;
       iTune = 0;
       //Serial.println (*data);
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
+      Serial.print("New PID values: Kp = ");
+      Serial.print(pKp);
       Serial.print(" Ki = ");
-      Serial.print(aKi);
+      Serial.print(pKi);
       Serial.print(" Kd = ");
-      Serial.println(aKd);
-
+      Serial.println(pKd);
+      Serial.print("Setpoint: ");
+      Serial.println(aHome);
       Serial.println(" Enter float:");
       break;
     case 'i':
       iFlag = true;
       iTune = 1;
 
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
+      Serial.print("New PID values: Kp = ");
+      Serial.print(pKp);
       Serial.print(" Ki = ");
-      Serial.print(aKi);
+      Serial.print(pKi);
       Serial.print(" Kd = ");
-      Serial.println(aKd);
+      Serial.println(pKd);
+      Serial.print("Setpoint: ");
+      Serial.println(aHome);
 
       Serial.println(" Enter float:");
       break;
     case 'd':
       dFlag = true;
       iTune = 2;
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
+      Serial.print("New PID values: Kp = ");
+      Serial.print(pKp);
       Serial.print(" Ki = ");
-      Serial.print(aKi);
+      Serial.print(pKi);
       Serial.print(" Kd = ");
-      Serial.println(aKd);
-
+      Serial.println(pKd);
+      Serial.print("Setpoint: ");
+      Serial.println(aHome);
       Serial.println(" Enter float:");
       break;
     case 'g':
@@ -506,15 +539,48 @@ void loop() {
     //
     //
     //if (incomingByte == 'c') {
+    double positionMeters = (lCount * 0.110732008);
+    //3cm
+
+    double positionScaled = (positionMeters / 33);
+    pInput = positionScaled;
+
+
+    PIDp.Compute();
+
+    aHome = aHome+(pOutput/100);
+
     PIDa.Compute();
+
+
+
+
+    if (printFlag_2) {
+      Serial.print("Position PID input: ");
+      Serial.print(pInput);
+      Serial.print(" ");
+
+      Serial.print(" Position PID output: ");
+      Serial.print(pOutput);
+      Serial.print(" ");
+
+      Serial.print(" Position PID setpoint: ");
+      Serial.print(pSetpoint);
+      Serial.println(" ");
+    }
+
     if (stopFlag == true) {
       left_motor.stop();
       right_motor.stop();
     } else {
       //PIDa.Compute();
-      float fSpeed = aOutput;
+
+      float fSpeed = ((aOutput * 0.8) + (pOutput * 0.35));
+      //float fSpeed = aOutput;
+
 
       if (fSpeed > 0.0) {
+        //fSpeed = ((fSpeed * 0.8) + (pSpeed * 0.2));
         left_motor.setSpeed(fSpeed);
         right_motor.setSpeed(fSpeed);
         left_motor.forward();
@@ -560,13 +626,19 @@ void loop() {
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+
+
     aInput = ypr[1] * 180 / M_PI;
+
     //if (45.3 < aInput < 46.3){
     //    if (angleMin < aInput < angleMax){
     //      aInput = aHome;
     //    }
 
     if (printFlag) {
+      Serial.print("lCount: ");
+      Serial.print(lCount);
+      Serial.print(" aInput: ");
       Serial.println(aInput);
     }
     //#ifdef PRINT_ANGLES
@@ -585,4 +657,28 @@ void loop() {
     digitalWrite(LED_PIN, blinkState);
   }
 }
+// Left encoder
+ISR (PCINT0_vect)
+{
+  lFlag = true;
+  if (PINB & bit (4)) { // if pin D12 was high
+    if (digitalRead(lDirPin) == HIGH) {
+      lCount++;
+    } else {
+      lCount--;
+    }  // end of PCINT2_vect
+  }
+}
 
+//Right encoder
+ISR (PCINT2_vect)
+{
+  rFlag = true;
+  if (PIND & bit (4)) { // if pin D4 was high
+    if (digitalRead(rDirPin) == HIGH) {
+      rCount++;
+    } else {
+      rCount--;
+    }  // end of PCINT2_vect
+  }
+}

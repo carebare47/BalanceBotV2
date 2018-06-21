@@ -78,15 +78,7 @@ public class MainActivity extends Activity  {
         //setContentView(R.layout.activity_control);
     }
 
-    public void tune(View v){
-        // Do something in response to button
-        Intent intent = new Intent(this, PIDActivity.class);
-        //EditText editText = (EditText) findViewById(R.id.editText);
-        //String message = editText.getText().toString();
-        //intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-        //setContentView(R.layout.activity_control);
-    }
+
     public  void visible(View v){
         Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         startActivityForResult(getVisible, 0);

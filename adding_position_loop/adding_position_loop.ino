@@ -55,18 +55,19 @@ volatile signed long rCount = 0;
 //Define Variables we'll be connecting to
 
 double aInput, aOutput;
+double pInput, pSetpoint = 0, pOutput;
 //double pSetpoint, pInput, pOutput;
 double aSetpoint = aHome;
 
 
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
-//double pKp = 0.5 , pKi = 0, pKd = 0;
-double aKp = 2.5, aKi = 3, aKd = 0.36;
+double pKp = 3.0, pKi = 3.0, pKd = 0.1;
+double aKp = 7.0, aKi = 7.0, aKd = 0.40;
 //double aKp = 70 , aKi = 140, aKd = 4.9;
 
 //double aKp = 40 , aKi = 0.0, aKd = 0.0;
-//PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
+PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 
 
@@ -255,8 +256,14 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   PIDa.SetMode(AUTOMATIC);
-  //PIDa.SetOutputLimits(-255, 255);
   PIDa.SetOutputLimits(-90, 90);
+  //Ahaha!!!
+  PIDa.SetSampleTime(10);
+  //Position loop
+  PIDp.SetMode(AUTOMATIC);
+  PIDp.SetOutputLimits(-100, 100);
+  PIDp.SetSampleTime(50);
+
 #ifdef properStart
   Serial.println("Waiting five seconds for IMU to stabalize...");
   for (int i = 0; i < 10; i++) {
@@ -277,7 +284,22 @@ void setup() {
 #endif
   Serial.println("Setup complete!");
 
-  PIDa.SetSampleTime(10);
+
+
+
+  pinMode(lIntPin, INPUT_PULLUP);
+
+
+  // pin change interrupt (D12)
+  PCMSK0 |= bit (PCINT4);  // want pin 12
+  PCIFR  |= bit (PCIF0);    // clear any outstanding interrupts
+  PCICR  |= bit (PCIE0);    // enable pin change interrupts for D8 to D12
+
+  // pin change interrupt (D4)
+  PCMSK2 |= bit (PCINT20);  // want pin 4
+  PCIFR  |= bit (PCIF2);    // clear any outstanding interrupts
+  PCICR  |= bit (PCIE2);    // enable pin change interrupts for D0 to D7
+
 }
 char incomingByte = 'x';
 #define MAX_INPUT 10
@@ -360,6 +382,9 @@ void process_data (const char * data)
     case 'c':
       stopFlag = true;
       iTune = 99;
+      break;
+    case 'x':
+      lCount = 0;
       break;
     case 'l':
       Serial.print("Current PID values: Kp = ");
@@ -506,15 +531,32 @@ void loop() {
     //
     //
     //if (incomingByte == 'c') {
+    double positionMeters = (lCount * 0.110732008);
+    //3cm
+
+    double positionScaled = (positionMeters / 33);
+    pInput = positionScaled;
+    Serial.print("Position PID input: ");
+    Serial.print(pInput);
+    Serial.print(" ");
     PIDa.Compute();
+    PIDp.Compute();
+    Serial.println("Position PID output: ");
+    Serial.print(pOutput);
+    Serial.print(" ");
+
     if (stopFlag == true) {
       left_motor.stop();
       right_motor.stop();
     } else {
       //PIDa.Compute();
-      float fSpeed = aOutput;
+
+      float fSpeed = ((aOutput * 0.8) + (pOutput * 0.2));
+      //float fSpeed = aOutput;
+
 
       if (fSpeed > 0.0) {
+        //fSpeed = ((fSpeed * 0.8) + (pSpeed * 0.2));
         left_motor.setSpeed(fSpeed);
         right_motor.setSpeed(fSpeed);
         left_motor.forward();
@@ -567,6 +609,9 @@ void loop() {
     //    }
 
     if (printFlag) {
+      Serial.print("lCount: ");
+      Serial.print(lCount);
+      Serial.print(" aInput: ");
       Serial.println(aInput);
     }
     //#ifdef PRINT_ANGLES
@@ -585,4 +630,28 @@ void loop() {
     digitalWrite(LED_PIN, blinkState);
   }
 }
+// Left encoder
+ISR (PCINT0_vect)
+{
+  lFlag = true;
+  if (PINB & bit (4)) { // if pin D12 was high
+    if (digitalRead(lDirPin) == HIGH) {
+      lCount++;
+    } else {
+      lCount--;
+    }  // end of PCINT2_vect
+  }
+}
 
+//Right encoder
+ISR (PCINT2_vect)
+{
+  rFlag = true;
+  if (PIND & bit (4)) { // if pin D4 was high
+    if (digitalRead(rDirPin) == HIGH) {
+      rCount++;
+    } else {
+      rCount--;
+    }  // end of PCINT2_vect
+  }
+}
