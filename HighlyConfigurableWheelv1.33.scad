@@ -206,8 +206,8 @@ concavity         = [0,0];      // Concavity distance of spoke area for [inside,
 
 includeHub           = true; // Set to false to remove the hub and only include the shaft diameter hole. 
 hubDiameter          = 15;    // The diameter of the hub portion of the wheel
-hubHeight            = 12;    // The total height of the hub
-hubZOffset           = 0;     // The Z position of the hub, negative numbers from the surface of the wheel 
+hubHeight            = 19.001;    // The total height of the hub
+hubZOffset           = -7.001;     // The Z position of the hub, negative numbers from the surface of the wheel 
 innerCircleDiameter  = 30;    // The diameter of the solid inner circle under the hub, or zero for none. 
 
 baseFilletRadius     = 2;     // The radius of the fillet (rounded part) between the hub and wheel. 

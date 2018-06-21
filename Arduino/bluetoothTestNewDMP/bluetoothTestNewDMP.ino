@@ -1,7 +1,12 @@
+#include <Plotter.h>
+
 /*-----( Import needed libraries )-----*/
 #include <SoftwareSerial.h>
 #include <string.h>
 #include <I2Cdev.h>
+
+Plotter plot;
+
 
 #include "MPU6050_6Axis_MotionApps20.h"
 //#include "MPU6050.h" // not necessary if using MotionApps include
@@ -45,7 +50,7 @@ L298N left_motor(lEN, lIN1, lIN2);
 //#define aHome 195
 
 
-#define aHome -15
+#define aHome -62
 
 #define INTERRUPT_PIN 2
 
@@ -83,8 +88,9 @@ double aSetpoint = aHome;
 
 
 //Specify the links and initial tuning parameters
-double aKp = 30, aKi = 0.1, aKd = 1;
-double pKp = 10, pKi = 0.01, pKd = 1;
+//double aKp = 30, aKi = 0.1, aKd = 1;
+double pKp = 0.5 , pKi = 0, pKd = 0;
+double aKp = 70 , aKi = 240, aKd = 1.9;
 PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 
@@ -156,12 +162,12 @@ void setup()   /****** SETUP: RUNS ONCE ******/
     mpu.setDMPEnabled(true);
 
     // enable Arduino interrupt detection
-    Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
+   // Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
     mpuIntStatus = mpu.getIntStatus();
 
     // set our DMP Ready flag so the main loop() function knows it's okay to use it
-    Serial.println(F("DMP ready! Waiting for first interrupt..."));
+    //Serial.println(F("DMP ready! Waiting for first interrupt..."));
     dmpReady = true;
 
     // get expected DMP packet size for later comparison
@@ -171,9 +177,9 @@ void setup()   /****** SETUP: RUNS ONCE ******/
     // 1 = initial memory load failed
     // 2 = DMP configuration updates failed
     // (if it's going to break, usually the code will be 1)
-    Serial.print(F("DMP Initialization failed (code "));
-    Serial.print(devStatus);
-    Serial.println(F(")"));
+    //Serial.print(F("DMP Initialization failed (code "));
+    //Serial.print(devStatus);
+    //Serial.println(F(")"));
   }
 
 
@@ -186,7 +192,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
 
 
 
-  Serial.begin(9600);   // For the Arduino IDE Serial Monitor
+//  Serial.begin(9600);   // For the Arduino IDE Serial Monitor
   Serial.println("YourDuino.com HC-05 Bluetooth Module AT Command Utility V1.02");
   Serial.println("Set Serial Monitor to 'Both NL & CR' and '9600 Baud' at bottom right");
 
@@ -218,6 +224,11 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   timer_x = millis();
 
   Serial.println("Setup finished");
+  plot.Begin();
+  plot.AddTimeGraph("left wheel PID", 500, "Input", pInput, "Setpoint", pSetpoint, "Output", pOutput);
+  //void AddTimeGraph( String title, int pointsDisplayed, String label1, Variable1Type variable1, String label2, Variable2Type variable2, ... )
+  //p.AddTimeGraph( "Some title of a graph", 500, "label for x", x );
+
 
 
 }//--(end setup )---
@@ -474,8 +485,8 @@ void stop_robot(void) {
 
 void do_robot_go(void) {
 
-  Serial.print("Count:");
-  Serial.println(lCount);
+//  Serial.print("Count:");
+//  Serial.println(lCount);
 
 
   //  int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
@@ -483,7 +494,7 @@ void do_robot_go(void) {
   //mpu6050.update();
   //aInput = ((mpu6050.getAngleX()) + 200); //Probably wrong axis
   pInput = tracker;//write this function
-  PIDa.Compute();
+  //PIDa.Compute();
   PIDp.Compute();
   //Serial.println("");
 
@@ -497,37 +508,52 @@ void do_robot_go(void) {
   float angleWeight = 0.8;
   float positionWeight = 0.2;
   float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
+  //float fSpeed = ((aOutput * angleWeight));// + (pOutput * positionWeight));
   //  float fSpeed = aOutput;
   if (fSpeed > 0.0) {
     //  right_motor.forward();
     left_motor.backward();
-    right_motor.forward();
+   // right_motor.backward();
   } else if (fSpeed < 0.0) {
     //    right_motor.backward();
     left_motor.forward();
-    right_motor.backward();
+     //right_motor.forward();
     fSpeed = fSpeed - ((2) * fSpeed);
   }
   //  right_motor.setSpeed(fSpeed);
   left_motor.setSpeed(fSpeed);
-  right_motor.setSpeed(fSpeed);
-  Serial.write(27);       // ESC command
-  Serial.print("[2J");    // clear screen command
-  Serial.write(27);
-  Serial.print("[H");     // cursor to home command
-  Serial.print("Tracker:");
-  Serial.print(lCount);
-  Serial.print("\tInput:");
-  Serial.print(aInput);
-  Serial.print("\tSetpoint:");
-  Serial.print(aSetpoint);
-  Serial.print("\tOutput:");
-  Serial.print(fSpeed);
+ // right_motor.setSpeed(fSpeed);
+// Serial.write(27);       // ESC command
+//  Serial.print("[2J");    // clear screen command
+//  Serial.write(27);
+//  Serial.print("[H");     // cursor to home command
+//  Serial.print("Tracker:");
+//  Serial.print(lCount);
+//  Serial.print("\tInput:");
+//  Serial.print(aInput);
+//  Serial.print("\tSetpoint:");
+//  Serial.print(aSetpoint);
+//  Serial.print("\tOutput:");
+//  Serial.print(fSpeed);
 
-  for (int i = 0; i < 10; i++) {
-    Serial.println("");
-  }
-  delay(50);
+//
+//  Serial.print("lTracker:");
+//  Serial.print(lCount);
+//  Serial.print("\trTracker:");
+//  Serial.print(rCount);
+//  Serial.print("\taInput:");
+//  Serial.print(aInput);
+//  Serial.print("\tpInput:");
+//  Serial.print(pInput);
+//  Serial.print("\taSetpoint:");
+//  Serial.print(aSetpoint);
+//  Serial.print("\tpSetpoint:");
+//  Serial.print(pSetpoint);
+//  Serial.print("\tfSpeed:");
+//  Serial.println(fSpeed);
+
+plot.Plot();
+
 
 }
 /*-----( Declare User-written Functions )-----*/

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends Activity  {
-    Button b1,b2,b3,b4,b5;
+    Button b1,b2,b3,b4,b5,b6;
     private BluetoothAdapter BA;
     private Set<BluetoothDevice>pairedDevices;
     ListView lv;
@@ -37,6 +37,7 @@ public class MainActivity extends Activity  {
         b3=(Button)findViewById(R.id.button3);
         b4=(Button)findViewById(R.id.button4);
         b5=(Button)findViewById(R.id.button5);
+        b6=(Button)findViewById(R.id.button6);
 
         BA = BluetoothAdapter.getDefaultAdapter();
 
@@ -70,6 +71,16 @@ public class MainActivity extends Activity  {
     public void control(View v){
         // Do something in response to button
         Intent intent = new Intent(this, ControlActivity.class);
+        //EditText editText = (EditText) findViewById(R.id.editText);
+        //String message = editText.getText().toString();
+        //intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+        //setContentView(R.layout.activity_control);
+    }
+
+    public void tune(View v){
+        // Do something in response to button
+        Intent intent = new Intent(this, PIDActivity.class);
         //EditText editText = (EditText) findViewById(R.id.editText);
         //String message = editText.getText().toString();
         //intent.putExtra(EXTRA_MESSAGE, message);

@@ -1,28 +1,10 @@
-/* YourDuino.com Example: BlueTooth HC-05 Setup
-  - WHAT IT DOES:
-   - Sets "Key" pin on HC-05 HIGH to enable command mode
-   - THEN applies Vcc from 2 Arduino pins to start command mode
-   - SHOULD see the HC-05 LED Blink SLOWLY: 2 seconds ON/OFF
-
-  Sends, Receives AT commands
-   For Setup of HC-05 type BlueTooth Module
-   NOTE: Set Serial Monitor to 'Both NL & CR' and '9600 Baud' at bottom right
-  - SEE the comments after "//" on each line below
-  - CONNECTIONS:
-   - GND
-   - Pin 2 to HC-05 TXD
-   - Pin 3 to HC-05 RXD
-   - Pin 4 to HC-05 KEY
-   - Pin 5+6 to HC-05 VCC for power control
-  - V1.02 05/02/2015
-   Questions: terry@yourduino.com */
-
 /*-----( Import needed libraries )-----*/
 #include <SoftwareSerial.h>
 #include <string.h>
 #include <MPU6050_tockn.h>
 #include <Wire.h>
 #include <L298N.h>
+
 
 //#define IMU_test
 
@@ -54,30 +36,37 @@
 // Calculate based on max input size expected for one command
 #define INPUT_SIZE 30
 
+#define ppr 2752
 
 //pin definition
 #define lEN 5
-#define lIN1 3
+#define lIN1 6
 #define lIN2 4
 
 #define rEN 9
 #define rIN1 8
 #define rIN2 7
-L298N right_motor(rEN, rIN1, rIN2);
+//L298N right_motor(rEN, rIN1, rIN2);
 L298N left_motor(lEN, lIN1, lIN2);
 
 //#define aHome 186
 #define aHome 195
 
 
-const byte leftIntPin = 2;
-const byte rightIntPin = 3;
-volatile byte rFlag = false;
-volatile byte lFlag = false;
-volatile byte rDir = false;
-volatile byte lDir = false;
-signed long lCount = 0;
-signed long rCount = 0;
+#define lIntPin 3  // the pin we are interested in
+#define lDirPin 11
+
+
+
+
+//const byte leftIntPin = 3;
+//const byte rightIntPin = 3;
+//volatile byte rFlag = false;
+volatile bool lFlag = false;
+//volatile byte rDir = false;
+//volatile byte lDir = false;
+volatile signed long lCount = 0;
+//signed long rCount = 0;
 
 MPU6050 mpu6050(Wire);
 
@@ -90,8 +79,8 @@ double aSetpoint = aHome;
 
 
 //Specify the links and initial tuning parameters
-double aKp = 300, aKi = 2, aKd = 1;
-double pKp = 2, pKi = 1, pKd = 1;
+double aKp = 30, aKi = 0.1, aKd = 1;
+double pKp = 10, pKi = 0.01, pKd = 1;
 PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 
@@ -151,26 +140,40 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   PIDp.SetOutputLimits(-255, 255);
   PIDa.SetOutputLimits(-255, 255);
 
-  pinMode(leftIntPin, INPUT_PULLUP);
-  pinMode(rightIntPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(leftIntPin), leftCB, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(rightIntPin), rightCB, CHANGE);
+  pinMode(lIntPin, INPUT_PULLUP);
+  //pinMode(11, INPUT_PULLUP);
+  //pinMode(rightIntPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(lIntPin), leftCB, RISING);
+ // attachInterrupt(digitalPinToInterrupt(rightIntPin), rightCB, CHANGE);
+
+//  pinMode(lIntPin, INPUT_PULLUP);     //set the pin to input
+//  //digitalWrite(lIntPin, HIGH); //use the internal pullup resistor
+//  //PBintPort::attachInterrupt(lIntPin, leftCB, RISING); // attach a PinChange Interrupt to our pin on the rising edge
+//  attachPinChangeInterrupt(lIntPin, leftCB, RISING);
+//  
+//  // pin change interrupt (example for D12)
+//  PCMSK0 |= bit (PCINT4);  // want pin 12
+//  PCIFR  |= bit (PCIF0);    // clear any outstanding interrupts
+//  PCICR  |= bit (PCIE0);    // enable pin change interrupts for D8 to D12
+//  pinMode (12, INPUT_PULLUP);
+//
+
 
   timer_x = millis();
 
 
-//left_motor.setSpeed(140);
-//left_motor.forward();
-//delay(1000);
-//left_motor.stop();
-//left_motor.backward();
-//delay(500);
-//left_motor.setSpeed(240);
-//delay(250);
-//left_motor.setSpeed(100);
-//delay(250);
-//left_motor.stop();
-Serial.println("Setup finished");
+  //left_motor.setSpeed(140);
+  //left_motor.forward();
+  //delay(1000);
+  //left_motor.stop();
+  //left_motor.backward();
+  //delay(500);
+  //left_motor.setSpeed(240);
+  //delay(250);
+  //left_motor.setSpeed(100);
+  //delay(250);
+  //left_motor.stop();
+  Serial.println("Setup finished");
 
 
 }//--(end setup )---
@@ -196,14 +199,14 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
 {
 
   mpu6050.update();
- // aInput = mpu6050.getAngleX();//Probably wrong axis
+  // aInput = mpu6050.getAngleX();//Probably wrong axis
 
-//  Serial.print("X:");
-//  Serial.println(mpu6050.getAngleX());
-//  Serial.print("Y:");
-//  Serial.println(mpu6050.getAngleY());
-//  Serial.print("Z:");
-//  Serial.println(mpu6050.getAngleZ());
+  //  Serial.print("X:");
+  //  Serial.println(mpu6050.getAngleX());
+  //  Serial.print("Y:");
+  //  Serial.println(mpu6050.getAngleY());
+  //  Serial.print("Z:");
+  //  Serial.println(mpu6050.getAngleZ());
 
 
 
@@ -292,12 +295,13 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
   }
 
 
-//pitchRX2 = true;
-//x_posRX = false;
+  //pitchRX2 = true;
+  //x_posRX = false;
 
   if ((pitchRX2 || rollRX2) && (!x_posRX)) {
     timer_x = millis();
-    int tracker = (int)((lCount + rCount ) / 2); //???
+    //int tracker = (int)((lCount + rCount ) / 2); //???
+    int tracker = (int)lCount;
     if (roll > 1.0) {
       roll = 1.0;
     }
@@ -335,7 +339,7 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
     Serial.println(pitch);
     pitchRX2 = false;
     rollRX2 = false;
-   // delay(10);
+    // delay(10);
 
 
   } else if (x_posRX) {
@@ -344,7 +348,7 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
     //Below line should go: While robot isn't settled at it's goal...
     aSetpoint = aHome; //upright
     pSetpoint = x_position; //where we've told it to go
-//    do_robot_go(); //go do robot
+    //    do_robot_go(); //go do robot
 
     //If we lose contact for 750ms, give angle mode a chance to take over.
     if ((millis() - timer_x) > 700) {
@@ -360,7 +364,13 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
     aSetpoint = aHome;
   }
 
-do_robot_go(); //go do robot
+
+  if (lFlag){
+    
+    lFlag = false;
+  }
+
+  do_robot_go(); //go do robot
 
 
 
@@ -368,7 +378,8 @@ do_robot_go(); //go do robot
 }//--(end main loop )---
 
 int whereAmI(void) {
-  int tracker = (int)((lCount + rCount ) / 2);
+  //int tracker = (int)((lCount + rCount ) / 2);
+  int tracker = (int)lCount;
   return tracker;
 }
 
@@ -392,13 +403,15 @@ void stop_robot(int timer) {
 void do_robot_go(void) {
 
 
-  int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
+//  int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
+  int tracker = (int)lCount;
   mpu6050.update();
-  aInput = ((mpu6050.getAngleX())+200);//Probably wrong axis
+  aInput = ((mpu6050.getAngleX()) + 200); //Probably wrong axis
   pInput = tracker;//write this function
   PIDa.Compute();
   //PIDp.Compute();
   //Serial.println("");
+
 
 
 
@@ -408,31 +421,33 @@ void do_robot_go(void) {
   //PIDp.Compute();
   float angleWeight = 0.8;
   float positionWeight = 0.2;
-  //float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
-  float fSpeed = aOutput;
+  float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
+//  float fSpeed = aOutput;
   if (fSpeed > 0.0) {
-    right_motor.forward();
+  //  right_motor.forward();
     left_motor.backward();
   } else if (fSpeed < 0.0) {
-    right_motor.backward();
+//    right_motor.backward(); 
     left_motor.forward();
-    fSpeed = fSpeed - ((2)*fSpeed);
+    fSpeed = fSpeed - ((2) * fSpeed);
   }
-  right_motor.setSpeed(fSpeed);
+//  right_motor.setSpeed(fSpeed);
   left_motor.setSpeed(fSpeed);
 
-    Serial.write(27);       // ESC command
+  Serial.write(27);       // ESC command
   Serial.print("[2J");    // clear screen command
   Serial.write(27);
   Serial.print("[H");     // cursor to home command
-  Serial.print("Input:");
+  Serial.print("Tracker:");
+  Serial.print(lCount);
+  Serial.print("\tInput:");
   Serial.print(aInput);
   Serial.print("\tSetpoint:");
   Serial.print(aSetpoint);
   Serial.print("\tOutput:");
   Serial.print(fSpeed);
 
-  for (int i=0; i < 10; i++){
+  for (int i = 0; i < 10; i++) {
     Serial.println("");
   }
   delay(50);
@@ -445,16 +460,31 @@ void do_robot_go(void) {
 
 
 
-
-
-void leftCB() {
+//
+//ISR (PCINT0_vect)
+//{
+//  lFlag = true;
+//  if (PINB & bit (4)) { // if it was high
+//    lCount++;
+//  } else {
+//    lCount--;
+//  }  // end of PCINT2_vect
+//}
+void leftCB(void) {
   lFlag = true;
-  lDir = digitalRead(4);
-  (lDir) ? lCount-- : lCount++;
+  bool direc = (digitalRead(lDirPin) == HIGH) ? true: false;
+  if (digitalRead(lIntPin) == HIGH){
+  if (direc){
+    lCount--;
+  } else {
+    lCount++;
+  }
+  }
+  //(digitalRead(lDirPin)) ? lCount-- : lCount++;
 }
-void rightCB() {
-  rFlag = true;
-  rDir = digitalRead(5);
-  (rDir) ? rCount-- : rCount++;
-}
+//void rightCB(void) {
+//  rFlag = true;
+//  rDir = digitalRead(5);
+//  (rDir) ? rCount-- : rCount++;
+//}
 
