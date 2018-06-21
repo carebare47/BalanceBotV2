@@ -62,7 +62,7 @@ double aSetpoint = aHome;
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
 //double pKp = 0.5 , pKi = 0, pKd = 0;
-double aKp = 2.5, aKi = 3, aKd = 0.36;
+double aKp = 7.0, aKi = 8.0, aKd = 0.66;
 //double aKp = 70 , aKi = 140, aKd = 4.9;
 
 //double aKp = 40 , aKi = 0.0, aKd = 0.0;
@@ -286,7 +286,7 @@ char incomingByte = 'x';
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 // here to process incoming serial data after a terminator received
-bool stopFlag = true;
+bool stopFlag = false;
 bool pFlag = false, iFlag = false, dFlag = false;
 int iTune = 99;
 bool printFlag = false;
