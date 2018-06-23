@@ -5,7 +5,7 @@
 #include <string.h>
 #include <I2Cdev.h>
 
-Plotter plot;
+//Plotter plot;
 
 
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -23,9 +23,9 @@ Plotter plot;
 
 
 //Bluetooth pins
-#define HC_05_TXD_ARDUINO_RXD 15
-#define HC_05_RXD_ARDUINO_TXD 14
-#define HC_05_SETUPKEY        17
+#define HC_05_TXD_ARDUINO_RXD 16
+#define HC_05_RXD_ARDUINO_TXD 15
+#define HC_05_SETUPKEY        14
 
 
 // Calculate based on max input size expected for one command
@@ -50,7 +50,7 @@ L298N left_motor(lEN, lIN1, lIN2);
 //#define aHome 195
 
 
-#define aHome -62
+#define aHome -45.6
 
 #define INTERRUPT_PIN 2
 
@@ -90,7 +90,7 @@ double aSetpoint = aHome;
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
 double pKp = 0.5 , pKi = 0, pKd = 0;
-double aKp = 70 , aKi = 240, aKd = 1.9;
+double aKp = 7 , aKi = 7, aKd = 0.66;
 PID PIDp(&pInput, &pOutput, &pSetpoint, pKp, pKi, pKd, DIRECT);
 PID PIDa(&aInput, &aOutput, &aSetpoint, aKp, aKi, aKd, DIRECT);
 
@@ -162,7 +162,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
     mpu.setDMPEnabled(true);
 
     // enable Arduino interrupt detection
-   // Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
+    // Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
     mpuIntStatus = mpu.getIntStatus();
 
@@ -192,7 +192,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
 
 
 
-//  Serial.begin(9600);   // For the Arduino IDE Serial Monitor
+  Serial.begin(115200);   // For the Arduino IDE Serial Monitor
   Serial.println("YourDuino.com HC-05 Bluetooth Module AT Command Utility V1.02");
   Serial.println("Set Serial Monitor to 'Both NL & CR' and '9600 Baud' at bottom right");
 
@@ -204,14 +204,15 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   PIDa.SetMode(AUTOMATIC);
   PIDp.SetMode(AUTOMATIC);
   PIDp.SetOutputLimits(-255, 255);
-  PIDa.SetOutputLimits(-255, 255);
+  PIDa.SetOutputLimits(-70, 70);
+  PIDa.SetSampleTime(20);
 
   pinMode(lIntPin, INPUT_PULLUP);
   //pinMode(11, INPUT_PULLUP);
   //pinMode(rightIntPin, INPUT_PULLUP);
-//  attachInterrupt(digitalPinToInterrupt(lIntPin), leftCB, RISING);
+  //  attachInterrupt(digitalPinToInterrupt(lIntPin), leftCB, RISING);
 
-// pin change interrupt (D12)
+  // pin change interrupt (D12)
   PCMSK0 |= bit (PCINT4);  // want pin 12
   PCIFR  |= bit (PCIF0);    // clear any outstanding interrupts
   PCICR  |= bit (PCIE0);    // enable pin change interrupts for D8 to D12
@@ -224,8 +225,8 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   timer_x = millis();
 
   Serial.println("Setup finished");
-  plot.Begin();
-  plot.AddTimeGraph("left wheel PID", 500, "Input", pInput, "Setpoint", pSetpoint, "Output", pOutput);
+  //  plot.Begin();
+  //  plot.AddTimeGraph("left wheel PID", 500, "Input", pInput, "Setpoint", pSetpoint, "Output", pOutput);
   //void AddTimeGraph( String title, int pointsDisplayed, String label1, Variable1Type variable1, String label2, Variable2Type variable2, ... )
   //p.AddTimeGraph( "Some title of a graph", 500, "label for x", x );
 
@@ -249,6 +250,9 @@ enum rx { UNDEF, s, r, p };
 int timer1 = millis();
 int timer2 = millis();
 int duration = 200;
+
+int serialTimer = 0;
+#define SerialTime 100
 void do_robot_go(void);
 void loop()   /****** LOOP: RUNS CONSTANTLY ******/
 {
@@ -260,351 +264,360 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
   while (!mpuInterrupt && fifoCount < packetSize) {
 
 
-    // READ from HC-05 and WRITE to Arduino Serial Monitor
-    if (BTSerial.available()) {
 
-      // Get next command from Serial (add 1 for final 0)
-      char input[INPUT_SIZE + 1];
-      byte size = BTSerial.readBytes(input, INPUT_SIZE);
-      // Add the final 0 to end the C string
-      input[size] = 0;
+    if ((serialTimer + SerialTime) < millis()) {
+      // READ from HC-05 and WRITE to Arduino Serial Monitor
+      if (BTSerial.available()) {
 
-      // Read each command pair
-      char* command = strtok(input, "&");
-      while (command != 0)
-      {
-        // Split the command in two values
-        char* separator = strchr(command, '=');
-        if (separator != 0)
+        // Get next command from Serial (add 1 for final 0)
+        char input[INPUT_SIZE + 1];
+        byte size = BTSerial.readBytes(input, INPUT_SIZE);
+        // Add the final 0 to end the C string
+        input[size] = 0;
+
+        // Read each command pair
+        char* command = strtok(input, "&");
+        while (command != 0)
         {
-          // Actually split the string in 2: replace ':' with 0
-          *separator = 0;
-          char ID = command[0];
-          ++separator;
-          int iPosition = atoi(separator);
-          float fPosition = atof(separator);
-          if (iPosition != 999) {
-            switch (ID) {
-              case 's':
-                sensitivity = iPosition;
-                //sensRX = true;
-                // Serial.print(position); Serial.print(",");
-                break;
-              case 'r':
-                roll = fPosition;
-                rollRX = true;
-                aSetpoint = roll;
-                Serial.print("roll");
-                Serial.println(fPosition);
-                //Serial.print(position); Serial.print(",");
-                break;
-              case 'p':
-                pitch = fPosition;
-                pSetpoint = pitch;
-                pitchRX = true;
-                Serial.print("pitch");
-                Serial.println(fPosition);
-                //Serial.print(position); Serial.print(",");
-                break;
-              case 'x':
-                Serial.print("x");
-                Serial.println(fPosition);
-                x_position = fPosition;
-                x_posRX = true;
-                break;
-            }
+          // Split the command in two values
+          char* separator = strchr(command, '=');
+          if (separator != 0)
+          {
+            // Actually split the string in 2: replace ':' with 0
+            *separator = 0;
+            char ID = command[0];
+            ++separator;
+            int iPosition = atoi(separator);
+            float fPosition = atof(separator);
+            if (iPosition != 999) {
+              switch (ID) {
+                case 's':
+                  sensitivity = iPosition;
+                  //sensRX = true;
+                  // Serial.print(position); Serial.print(",");
+                  break;
+                case 'r':
+                  roll = fPosition;
+                  rollRX = true;
+                  aSetpoint = roll;
+                  Serial.print("roll");
+                  Serial.println(fPosition);
+                  //Serial.print(position); Serial.print(",");
+                  break;
+                case 'p':
+                  pitch = fPosition;
+                  pSetpoint = pitch;
+                  pitchRX = true;
+                  Serial.print("pitch");
+                  Serial.println(fPosition);
+                  //Serial.print(position); Serial.print(",");
+                  break;
+                case 'x':
+                  Serial.print("x");
+                  Serial.println(fPosition);
+                  x_position = fPosition;
+                  x_posRX = true;
+                  break;
+              }
 
-            if (pitchRX) {
-              pitchRX2 = true;
+              if (pitchRX) {
+                pitchRX2 = true;
+              }
+              if (rollRX) {
+                rollRX2 = true;
+              }
+              rollRX = false;
+              pitchRX = false;
+              //char buf[INPUT_SIZE + 1];
+              //sprintf(buf, "%s = %d", &command[0], position);
+              //Serial.write(buf);
+              // Do something with servoId and position
             }
-            if (rollRX) {
-              rollRX2 = true;
-            }
-            rollRX = false;
-            pitchRX = false;
-            //char buf[INPUT_SIZE + 1];
-            //sprintf(buf, "%s = %d", &command[0], position);
-            //Serial.write(buf);
-            // Do something with servoId and position
           }
+          // Find the next command in input string
+          command = strtok(0, "&");
         }
-        // Find the next command in input string
-        command = strtok(0, "&");
-      }
 
+      }
+      serialTimer = millis();
     }
 
 
-    //pitchRX2 = true;
-    //x_posRX = false;
+      //pitchRX2 = true;
+      //x_posRX = false;
 
-    if ((pitchRX2 || rollRX2) && (!x_posRX)) {
-      timer_x = millis();
-      //int tracker = (int)((lCount + rCount ) / 2); //???
-      int tracker = (int)lCount;
-      if (roll > 1.0) {
-        roll = 1.0;
-      }
-      if (pitch > 1.0) {
-        pitch = 1.0;
-      }
-      if (roll < -1.0) {
-        roll = -1.0;
-      }
-      if (pitch < -1.0) {
-        pitch = -1.0;
-      }
-      if (roll < 0.0) {
-        roll = 0.0 - roll;
-      }
-      if (pitch < 0.0) {
-        pitch = 0.0 - pitch;
-      }
+      if ((pitchRX2 || rollRX2) && (!x_posRX)) {
+//        timer_x = millis();
+        //int tracker = (int)((lCount + rCount ) / 2); //???
+        int tracker = (int)lCount;
+        if (roll > 1.0) {
+          roll = 1.0;
+        }
+        if (pitch > 1.0) {
+          pitch = 1.0;
+        }
+        if (roll < -1.0) {
+          roll = -1.0;
+        }
+        if (pitch < -1.0) {
+          pitch = -1.0;
+        }
+        if (roll < 0.0) {
+          roll = 0.0 - roll;
+        }
+        if (pitch < 0.0) {
+          pitch = 0.0 - pitch;
+        }
 
 
 
-      int y = map(int(roll * 100), 0, 100, 0, 254);
-      analogWrite(13, y);
-      //Maybe put offsets here sometime?
-      //    -0.2
-      //    -0.65
+        int y = map(int(roll * 100), 0, 100, 0, 254);
+        analogWrite(13, y);
+        //Maybe put offsets here sometime?
+        //    -0.2
+        //    -0.65
+        //
+        //    +0.2
+        //    +0.65/2 = 0.325
+        //    +0.525
+        Serial.print(roll);
+        //Serial.print((roll-0.35));
+        Serial.print(",");
+        //Serial.println(pitch-0.525);
+        Serial.println(pitch);
+        pitchRX2 = false;
+        rollRX2 = false;
+        // delay(10);
+
+
+      } else if (x_posRX) {
+        timer_x = millis();
+
+        //Below line should go: While robot isn't settled at it's goal...
+        aSetpoint = aHome; //upright
+        pSetpoint = x_position; //where we've told it to go
+        //    do_robot_go(); //go do robot
+
+        //If we lose contact for 750ms, give angle mode a chance to take over.
+        if ((millis() - timer_x) > 700) {
+          x_posRX = false;
+        }
+
+
+      } else if (((!x_posRX) && (!pitchRX2) && (!rollRX2)) && ((millis() - timer_x) > 800)) {
+
+        stop_robot();
+        pSetpoint = x_position; //where we've told it to go last hopefully
+        aSetpoint = aHome;
+      } else {
+        pSetpoint = 0; //where we've told it to go last hopefully
+        aSetpoint = aHome;
+        do_robot_go(); //go do robot
+      }
+
+
+      //    if (lFlag) {
       //
-      //    +0.2
-      //    +0.65/2 = 0.325
-      //    +0.525
-      Serial.print(roll);
-      //Serial.print((roll-0.35));
-      Serial.print(",");
-      //Serial.println(pitch-0.525);
-      Serial.println(pitch);
-      pitchRX2 = false;
-      rollRX2 = false;
-      // delay(10);
+      //      lFlag = false;
+      //    }
 
-
-    } else if (x_posRX) {
-      timer_x = millis();
-
-      //Below line should go: While robot isn't settled at it's goal...
-      aSetpoint = aHome; //upright
-      pSetpoint = x_position; //where we've told it to go
-      //    do_robot_go(); //go do robot
-
-      //If we lose contact for 750ms, give angle mode a chance to take over.
-      if ((millis() - timer_x) > 700) {
-        x_posRX = false;
-      }
-
-
-    } else if (((!x_posRX) && (!pitchRX2) && (!rollRX2)) && ((millis() - timer_x) > 800)) {
-
-      stop_robot();
-      pSetpoint = x_position; //where we've told it to go last hopefully
-      aSetpoint = aHome;
-    } else {
-      pSetpoint = 0; //where we've told it to go last hopefully
-      aSetpoint = aHome;
       do_robot_go(); //go do robot
     }
 
 
-//    if (lFlag) {
-//
-//      lFlag = false;
-//    }
+    // reset interrupt flag and get INT_STATUS byte
+    mpuInterrupt = false;
+    mpuIntStatus = mpu.getIntStatus();
 
-    do_robot_go(); //go do robot
-  }
+    // get current FIFO count
+    fifoCount = mpu.getFIFOCount();
+
+    // check for overflow (this should never happen unless our code is too inefficient)
+    if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+      // reset so we can continue cleanly
+      mpu.resetFIFO();
+      Serial.println(F("FIFO overflow!"));
+
+      // otherwise, check for DMP data ready interrupt (this should happen frequently)
+    } else if (mpuIntStatus & 0x02) {
+      // wait for correct available data length, should be a VERY short wait
+      while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+
+      // read a packet from FIFO
+      mpu.getFIFOBytes(fifoBuffer, packetSize);
+
+      // track FIFO count here in case there is > 1 packet available
+      // (this lets us immediately read more without waiting for an interrupt)
+      fifoCount -= packetSize;
+      // display Euler angles in degrees
+      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      //Serial.print("roll:");
+      aInput = ypr[2] * 180 / M_PI;
+      //Serial.println(aInput);
+      //    Serial.print("lCount:");
+      //    Serial.print(lCount);
+      //
+      //    Serial.print("\trCount:");
+      //    Serial.println(rCount);
+      do_robot_go(); //go do robot
 
 
-  // reset interrupt flag and get INT_STATUS byte
-  mpuInterrupt = false;
-  mpuIntStatus = mpu.getIntStatus();
-
-  // get current FIFO count
-  fifoCount = mpu.getFIFOCount();
-
-  // check for overflow (this should never happen unless our code is too inefficient)
-  if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-    // reset so we can continue cleanly
-    mpu.resetFIFO();
-    Serial.println(F("FIFO overflow!"));
-
-    // otherwise, check for DMP data ready interrupt (this should happen frequently)
-  } else if (mpuIntStatus & 0x02) {
-    // wait for correct available data length, should be a VERY short wait
-    while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-
-    // read a packet from FIFO
-    mpu.getFIFOBytes(fifoBuffer, packetSize);
-
-    // track FIFO count here in case there is > 1 packet available
-    // (this lets us immediately read more without waiting for an interrupt)
-    fifoCount -= packetSize;
-    // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-    //Serial.print("roll:");
-    aInput = ypr[2] * 180 / M_PI;
-    //Serial.println(aInput);
-//    Serial.print("lCount:");
-//    Serial.print(lCount);
-//
-//    Serial.print("\trCount:");
-//    Serial.println(rCount);
-    do_robot_go(); //go do robot
-
+    }
 
   }
 
-}
 
 
+  //--(end main loop )---
 
-//--(end main loop )---
-
-int whereAmI(void) {
-  //int tracker = (int)((lCount + rCount ) / 2);
-  int tracker = (int)lCount;
-  return tracker;
-}
-
-bool haltPos = true;
-void stop_robot(void) {
-  if (haltPos) {
-    x_position = whereAmI();
+  int whereAmI(void) {
+    //int tracker = (int)((lCount + rCount ) / 2);
+    int tracker = (int)lCount;
+    return tracker;
   }
 
-  //don't keep taking new readings or we'll at best drift into something
-  haltPos = false;
+  bool haltPos = true;
+  void stop_robot(void) {
+    if (haltPos) {
+      x_position = whereAmI();
+    }
+
+    //don't keep taking new readings or we'll at best drift into something
+    haltPos = false;
 
 
-}
-
-
-void do_robot_go(void) {
-
-//  Serial.print("Count:");
-//  Serial.println(lCount);
-
-
-  //  int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
-  int tracker = (int)lCount;
-  //mpu6050.update();
-  //aInput = ((mpu6050.getAngleX()) + 200); //Probably wrong axis
-  pInput = tracker;//write this function
-  //PIDa.Compute();
-  PIDp.Compute();
-  //Serial.println("");
-
-
-
-
-
-  //pSetpoint = 0;
-  //pInput = tracker;
-  //PIDp.Compute();
-  float angleWeight = 0.8;
-  float positionWeight = 0.2;
-  float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
-  //float fSpeed = ((aOutput * angleWeight));// + (pOutput * positionWeight));
-  //  float fSpeed = aOutput;
-  if (fSpeed > 0.0) {
-    //  right_motor.forward();
-    left_motor.backward();
-   // right_motor.backward();
-  } else if (fSpeed < 0.0) {
-    //    right_motor.backward();
-    left_motor.forward();
-     //right_motor.forward();
-    fSpeed = fSpeed - ((2) * fSpeed);
   }
-  //  right_motor.setSpeed(fSpeed);
-  left_motor.setSpeed(fSpeed);
- // right_motor.setSpeed(fSpeed);
-// Serial.write(27);       // ESC command
-//  Serial.print("[2J");    // clear screen command
-//  Serial.write(27);
-//  Serial.print("[H");     // cursor to home command
-//  Serial.print("Tracker:");
-//  Serial.print(lCount);
-//  Serial.print("\tInput:");
-//  Serial.print(aInput);
-//  Serial.print("\tSetpoint:");
-//  Serial.print(aSetpoint);
-//  Serial.print("\tOutput:");
-//  Serial.print(fSpeed);
-
-//
-//  Serial.print("lTracker:");
-//  Serial.print(lCount);
-//  Serial.print("\trTracker:");
-//  Serial.print(rCount);
-//  Serial.print("\taInput:");
-//  Serial.print(aInput);
-//  Serial.print("\tpInput:");
-//  Serial.print(pInput);
-//  Serial.print("\taSetpoint:");
-//  Serial.print(aSetpoint);
-//  Serial.print("\tpSetpoint:");
-//  Serial.print(pSetpoint);
-//  Serial.print("\tfSpeed:");
-//  Serial.println(fSpeed);
-
-plot.Plot();
 
 
-}
-/*-----( Declare User-written Functions )-----*/
-//NONE
+  void do_robot_go(void) {
 
-//*********( THE END )***********
+    //  Serial.print("Count:");
+    //  Serial.println(lCount);
+
+
+    //  int tracker = (int)((lCount + rCount ) / 2);//oh, here it is
+    int tracker = (int)lCount;
+    //mpu6050.update();
+    //aInput = ((mpu6050.getAngleX()) + 200); //Probably wrong axis
+    pInput = tracker;//write this function
+    aSetpoint = aHome;
+    //PIDa.Compute();
+    PIDa.Compute();
+    //Serial.println("");
 
 
 
-// Left encoder
-ISR (PCINT0_vect)
-{
-  lFlag = true;
-  if (PINB & bit (4)) { // if pin D12 was high
-    if (digitalRead(lDirPin) == HIGH) {
-      lCount++;
-    } else {
-      lCount--;
-    }  // end of PCINT2_vect
+
+
+    //pSetpoint = 0;
+    //pInput = tracker;
+    //PIDp.Compute();
+    float angleWeight = 0.8;
+    float positionWeight = 0.2;
+    //float fSpeed = ((aOutput * angleWeight) + (pOutput * positionWeight));
+    float fSpeed = aOutput;
+    //float fSpeed = ((aOutput * angleWeight));// + (pOutput * positionWeight));
+    //  float fSpeed = aOutput;
+    if (fSpeed > 0.0) {
+      left_motor.setSpeed(fSpeed);
+      //  right_motor.forward();
+      left_motor.backward();
+      // right_motor.backward();
+    } else if (fSpeed < 0.0) {
+      fSpeed = fSpeed - ((2) * fSpeed);
+      left_motor.setSpeed(fSpeed);
+      //    right_motor.backward();
+      left_motor.forward();
+      //right_motor.forward();
+
+    }
+    //  right_motor.setSpeed(fSpeed);
+    //left_motor.setSpeed(fSpeed);
+    // right_motor.setSpeed(fSpeed);
+    // Serial.write(27);       // ESC command
+    //  Serial.print("[2J");    // clear screen command
+    //  Serial.write(27);
+    //  Serial.print("[H");     // cursor to home command
+    //  Serial.print("Tracker:");
+    //  Serial.print(lCount);
+    //  Serial.print("\tInput:");
+    //  Serial.print(aInput);
+    //  Serial.print("\tSetpoint:");
+    //  Serial.print(aSetpoint);
+    //  Serial.print("\tOutput:");
+    //  Serial.print(fSpeed);
+
+    //
+    //  Serial.print("lTracker:");
+    //  Serial.print(lCount);
+    //  Serial.print("\trTracker:");
+    //  Serial.print(rCount);
+    //  Serial.print("\taInput:");
+    //  Serial.print(aInput);
+    //  Serial.print("\tpInput:");
+    //  Serial.print(pInput);
+    //  Serial.print("\taSetpoint:");
+    //  Serial.print(aSetpoint);
+    //  Serial.print("\tpSetpoint:");
+    //  Serial.print(pSetpoint);
+    //  Serial.print("\tfSpeed:");
+    //  Serial.println(fSpeed);
+
+    //plot.Plot();
+
+
   }
-}
+  /*-----( Declare User-written Functions )-----*/
+  //NONE
 
-//Right encoder
-ISR (PCINT2_vect)
-{
-  rFlag = true;
-  if (PIND & bit (4)) { // if pin D4 was high
-    if (digitalRead(rDirPin) == HIGH) {
-      rCount++;
-    } else {
-      rCount--;
-    }  // end of PCINT2_vect
+  //*********( THE END )***********
+
+
+
+  // Left encoder
+  ISR (PCINT0_vect)
+  {
+    lFlag = true;
+    if (PINB & bit (4)) { // if pin D12 was high
+      if (digitalRead(lDirPin) == HIGH) {
+        lCount++;
+      } else {
+        lCount--;
+      }  // end of PCINT2_vect
+    }
   }
-}
-//void leftCB(void) {
-//  lFlag = true;
-//  bool direc = (digitalRead(lDirPin) == HIGH) ? true : false;
-//  if (digitalRead(lIntPin) == HIGH) {
-//    if (direc) {
-//      lCount--;
-//    } else {
-//      lCount++;
-//    }
-//  }
-//  //(digitalRead(lDirPin)) ? lCount-- : lCount++;
-//}
-//void rightCB(void) {
-//  rFlag = true;
-//  rDir = digitalRead(5);
-//  (rDir) ? rCount-- : rCount++;
-//}
+
+  //Right encoder
+  ISR (PCINT2_vect)
+  {
+    rFlag = true;
+    if (PIND & bit (4)) { // if pin D4 was high
+      if (digitalRead(rDirPin) == HIGH) {
+        rCount++;
+      } else {
+        rCount--;
+      }  // end of PCINT2_vect
+    }
+  }
+  //void leftCB(void) {
+  //  lFlag = true;
+  //  bool direc = (digitalRead(lDirPin) == HIGH) ? true : false;
+  //  if (digitalRead(lIntPin) == HIGH) {
+  //    if (direc) {
+  //      lCount--;
+  //    } else {
+  //      lCount++;
+  //    }
+  //  }
+  //  //(digitalRead(lDirPin)) ? lCount-- : lCount++;
+  //}
+  //void rightCB(void) {
+  //  rFlag = true;
+  //  rDir = digitalRead(5);
+  //  (rDir) ? rCount-- : rCount++;
+  //}
 
 
 

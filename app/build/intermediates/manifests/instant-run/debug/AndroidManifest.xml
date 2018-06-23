@@ -50,17 +50,6 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name="com.example.bluetest.PIDActivity"
-            android:logo="@drawable/wheel"
-            android:parentActivityName="com.example.bluetest.MainActivity"
-            android:screenOrientation="landscape" >
-
-            <!-- The meta-data tag is required if you support API level 15 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-        <activity
             android:name="com.example.bluetest.PositionActivity"
             android:logo="@drawable/wheel"
             android:parentActivityName="com.example.bluetest.MainActivity"

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -20,15 +21,18 @@ import java.util.UUID;
 
 
 public class ControlActivity extends Activity {
+    //bt timer
+    private Handler handler;
     Button b5,b8,b9;
     SeekBar seek1;
     BluetoothAdapter myBluetooth = null;
+    private boolean commandReady = false;
     BluetoothSocket btSocket = null;
     BluetoothDevice dispositivo = null;
     String address = null;
     //Integer range_max = this.getResources().getInteger(R.integer.range_max);
     //Integer range_min = R.integer.range_min;
-    Integer range_precision = 1000;
+    Integer range_precision = 100;
     private boolean isBtConnected = false;
     private ProgressDialog progress;
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -37,6 +41,9 @@ public class ControlActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_control);
+
+        //for bluetooth timer
+        handler = new Handler();
 
         b5=(Button)findViewById(R.id.button5);
         b8=(Button)findViewById(R.id.button8);
@@ -55,6 +62,8 @@ public class ControlActivity extends Activity {
         if (address != null) {
             new ConnectBT().execute(); //Call the class to connect
         }
+
+
         //commands to be sent to bluetooth
         seek1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                  @Override
@@ -65,10 +74,12 @@ public class ControlActivity extends Activity {
                          float progressFloat = ((float) progress / (float) range_precision) - ((float) maximumRange / 2);
                          textView.setText("   " + String.valueOf(progressFloat) + "\u00B0");
                          //Uncomment for hc-05
-                         if (isBtConnected) {
+                         if (isBtConnected && commandReady) {
                              try {
                                  //msg("Alter code to connect to hc-05");
-                                 btSocket.getOutputStream().write(String.valueOf("&r=" + (progress - 500)).getBytes());
+                                 btSocket.getOutputStream().write(String.valueOf("&r=" + (progress) + "e").getBytes());
+                                 commandReady = false;
+
                              } catch (IOException e) {
                                  msg("Couldn't send angle message");
                              }
@@ -87,11 +98,47 @@ public class ControlActivity extends Activity {
                      seek1.setProgress(seek1.getMax()/2);
                      TextView textView = findViewById(R.id.textView5);
                      textView.setText("0\u00B0");
+                     if (isBtConnected) {
+                         try {
+                             //msg("Alter code to connect to hc-05");
+                             btSocket.getOutputStream().write(String.valueOf("&r=500e").getBytes());
+                             btSocket.getOutputStream().write(String.valueOf("&k=500e").getBytes());
+                             btSocket.getOutputStream().write(String.valueOf("&r=500e").getBytes());
+                             btSocket.getOutputStream().write(String.valueOf("&k=500e").getBytes());
+                             //commandReady = false;
+
+                         } catch (IOException e) {
+                             msg("Couldn't send angle message");
+                         }
+                     }
                  }
              });
 
 
+
+
     }
+
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                commandReady = true;
+            } finally {
+                // 100% guarantee that this always happens, even if
+                // your update method throws an exception
+                handler.postDelayed(mStatusChecker, 100);
+            }
+
+
+        }
+    };
+    void startRepeatingTask() {
+        mStatusChecker.run();
+    }
+
+
+
 
     private void disconnect() {
 //        if (mBTInputStream != null) {
@@ -210,6 +257,7 @@ public class ControlActivity extends Activity {
             {
                 msg("Connected.");
                 isBtConnected = true;
+                startRepeatingTask();
             }
           //  progress.dismiss();
         }

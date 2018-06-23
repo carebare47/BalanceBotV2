@@ -7,4 +7,4 @@ a7	a6	a5	a4	a3	a2	a1	a0
 
 green	grey	purple	red	lilac	grey	purple	grey	blue	grey	white
 d2	d3	d4	d5	d6	d7	d8	d9	d10	d11	d12
-imu_int	ena	enc1a	enb	in3	in4	in1	enc1b	in2	enc2a	enc2b		
+imu_int	ena	enc1a	enb	in3	in4	in1	enc1b	in2	enc2a	enc2b		x
