@@ -175,7 +175,7 @@ void loop() {
 
   if (printFlag3) {
     Serial.print("Loop time: ");
-    Serial.println((micros() - gOldTime) / 1000);
+    Serial.println((micros() - gOldTime));
     gOldTime = micros();
   }
   /*
