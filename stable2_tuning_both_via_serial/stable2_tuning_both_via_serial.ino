@@ -306,38 +306,17 @@ char incomingByte = 'x';
 bool stopFlag = false, angleFlag = false, printTimeFlag = false;
 bool pFlag = false, iFlag = false, dFlag = false;
 int iTune = 99;
-bool printFlag = false;
+bool printFlag = false, printFlag7 = false;
+bool tuneA = false, tuneP = false;
 void process_data (const char * data)
 {
   // for now just display it
   // (but you could compare it to some value, convert to an integer, etc.)
   Serial.println (data);
-  //  if (*data != 'c') {
-  //    stopFlag = false;
-  //  }
-
-  //  if (iTune != 99) {
-  //    switch (iTune) {
-  //      case 0:
-  //        aKp = (float)*data;
-  //        Serial.println (*data);
-  //        iTune = 99;
-  //        break;
-  //      case 1:
-  //        aKi = *data;
-  //        iTune = 99;
-  //        break;
-  //      case 2:
-  //        aKd = (float)*data;
-  //        iTune = 99;
-  //        break;
-  //    }
-  //    PIDa.SetTunings(aKp, aKi, aKd);
-  //  }
 
 
-  if (iTune != 99) {
 
+  if ((iTune != 99) && (tuneA)) {
     switch (iTune) {
       case 0:
         aKp = Serial.parseFloat();
@@ -365,7 +344,38 @@ void process_data (const char * data)
     Serial.println(aKd);
     Serial.print("Setpoint: ");
     Serial.println(aHome);
+    tuneA = false;
+  }
 
+  if ((iTune != 99) && (tuneP)) {
+    switch (iTune) {
+      case 0:
+        pKp = Serial.parseFloat();
+        iTune = 99;
+        break;
+      case 1:
+        pKi = Serial.parseFloat();
+        iTune = 99;
+        break;
+      case 2:
+        pKd = Serial.parseFloat();
+        iTune = 99;
+        break;
+      case 5:
+        aHome = Serial.parseFloat();
+        iTune = 99;
+        break;
+    }
+    PIDp.SetTunings(pKp, pKi, pKd);
+    Serial.print("New PID values: Kp = ");
+    Serial.print(pKp);
+    Serial.print(" Ki = ");
+    Serial.print(pKi);
+    Serial.print(" Kd = ");
+    Serial.println(pKd);
+    Serial.print("Setpoint: ");
+    Serial.println(aHome);
+    tuneP = false;
   }
 
 
@@ -373,7 +383,33 @@ void process_data (const char * data)
   //    printFlag = false;
   //  }
 
+
+
+
+
   switch (*data) {
+    case 'h':
+      Serial.println("Displaying help");
+      Serial.println("c = stop");
+      Serial.println("w = angleFlag");
+      Serial.println("x = tune posisiton loop");
+      Serial.println("m = printTimeFlag");
+      Serial.println("l = show current tuning values (all)");
+      Serial.println("q = printFlag");
+      Serial.println("p i & d, next number will tune");
+      Serial.println("g = go");
+      Serial.println("t = tune home angle");
+      Serial.println("e = printFlag7");
+      break;
+    case 'e':
+      printFlag7 = !printFlag7;
+      iTune = 99;
+      break;
+    case '#':
+      Serial.println("Angle loop selected..");
+      tuneA = true;
+      iTune = 99;
+      break;
     case 'c':
       stopFlag = true;
       iTune = 99;
@@ -382,59 +418,101 @@ void process_data (const char * data)
       angleFlag = !angleFlag;
       iTune = 99;
       break;
+    case 'x':
+      Serial.println("Position loop selected..");
+      tuneP = true;
+      iTune = 99;
+      break;
     case 'm':
       printTimeFlag = !printTimeFlag;
       iTune = 99;
       break;
     case 'l':
-      Serial.print("Current PID values: Kp = ");
+      Serial.print("Current PID values (angle): Kp = ");
       Serial.print(aKp);
       Serial.print(" Ki = ");
       Serial.print(aKi);
       Serial.print(" Kd = ");
       Serial.println(aKd);
+      Serial.print("Current PID values (pos): Kp = ");
+      Serial.print(pKp);
+      Serial.print(" Ki = ");
+      Serial.print(pKi);
+      Serial.print(" Kd = ");
+      Serial.println(pKd);
       Serial.print("Setpoint: ");
       Serial.println(aHome);
       break;
     case 'q':
       printFlag = !printFlag;
+      iTune = 99;
       break;
     case 'p':
       pFlag = true;
       iTune = 0;
       //Serial.println (*data);
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
-      Serial.print(" Ki = ");
-      Serial.print(aKi);
-      Serial.print(" Kd = ");
-      Serial.println(aKd);
-
+      if (tuneA) {
+        Serial.print("Current PID values (angle): Kp = ");
+        Serial.print(aKp);
+        Serial.print(" Ki = ");
+        Serial.print(aKi);
+        Serial.print(" Kd = ");
+        Serial.println(aKd);
+      } else if (tuneP) {
+        Serial.print("Current PID values (pos): Kp = ");
+        Serial.print(pKp);
+        Serial.print(" Ki = ");
+        Serial.print(pKi);
+        Serial.print(" Kd = ");
+        Serial.println(pKd);
+      } else {
+        Serial.println("Please select tuneA or tuneP");
+      }
       Serial.println(" Enter float:");
       break;
     case 'i':
       iFlag = true;
       iTune = 1;
 
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
-      Serial.print(" Ki = ");
-      Serial.print(aKi);
-      Serial.print(" Kd = ");
-      Serial.println(aKd);
-
+      if (tuneA) {
+        Serial.print("Current PID values (angle): Kp = ");
+        Serial.print(aKp);
+        Serial.print(" Ki = ");
+        Serial.print(aKi);
+        Serial.print(" Kd = ");
+        Serial.println(aKd);
+      } else if (tuneP) {
+        Serial.print("Current PID values (pos): Kp = ");
+        Serial.print(pKp);
+        Serial.print(" Ki = ");
+        Serial.print(pKi);
+        Serial.print(" Kd = ");
+        Serial.println(pKd);
+      } else {
+        Serial.println("Please select tuneA or tuneP");
+      }
       Serial.println(" Enter float:");
       break;
     case 'd':
       dFlag = true;
       iTune = 2;
-      Serial.print("Current PID values: Kp = ");
-      Serial.print(aKp);
-      Serial.print(" Ki = ");
-      Serial.print(aKi);
-      Serial.print(" Kd = ");
-      Serial.println(aKd);
-
+      if (tuneA) {
+        Serial.print("Current PID values (angle): Kp = ");
+        Serial.print(aKp);
+        Serial.print(" Ki = ");
+        Serial.print(aKi);
+        Serial.print(" Kd = ");
+        Serial.println(aKd);
+      } else if (tuneP) {
+        Serial.print("Current PID values (pos): Kp = ");
+        Serial.print(pKp);
+        Serial.print(" Ki = ");
+        Serial.print(pKi);
+        Serial.print(" Kd = ");
+        Serial.println(pKd);
+      } else {
+        Serial.println("Please select tuneA or tuneP");
+      }
       Serial.println(" Enter float:");
       break;
     case 'g':
@@ -447,6 +525,7 @@ void process_data (const char * data)
       break;
 
   }
+
 
 
 
@@ -553,18 +632,21 @@ void loop() {
 
 
     pInput = (double)getSpeedLeft();
-    Serial.print("pInput: ");
-    Serial.print(pInput);
-
+    if (printFlag7) {
+      Serial.print("pInput: ");
+      Serial.print(pInput);
+    }
     //    if (pInput == 0.0 && pSetpoint == 0.0) {
     //      PIDp.Compute(true);
     //    } else {
     PIDp.Compute(false);
     //    }
-    Serial.print(" pSetpoint: ");
-    Serial.print(pSetpoint);
-    Serial.print(" pOutput: ");
-    Serial.print(pOutput);
+    if (printFlag7) {
+      Serial.print(" pSetpoint: ");
+      Serial.print(pSetpoint);
+      Serial.print(" pOutput: ");
+      Serial.print(pOutput);
+    }
 
     //    if ((-1.1) < pOutput < 1.1){
     //      pOutput = 0.0;
@@ -585,17 +667,17 @@ void loop() {
 
     aSetpoint = aHome + pOutput;
 
-
-    if (!angleFlag) {
-      Serial.print(" angle: ");
-      Serial.println(aSetpoint);
-    } else {
-      Serial.print(" desired angle: ");
-      Serial.print(aSetpoint);
-      Serial.print(" current angle: ");
-      Serial.println(aInput);
+    if (printFlag7) {
+      if (!angleFlag) {
+        Serial.print(" angle: ");
+        Serial.println(aSetpoint);
+      } else {
+        Serial.print(" desired angle: ");
+        Serial.print(aSetpoint);
+        Serial.print(" current angle: ");
+        Serial.println(aInput);
+      }
     }
-
     PIDa.Compute(false);
 
 
@@ -737,20 +819,14 @@ double processBluetooth(void) {
   }
 
   return roll;
-
-
-
 }
 
 
 
 float countToDistanceM = (PI * 0.1) / ppr;
 
-
 long old_lCount = 0, old_lTime = 0;
 long old_rCount = 0, old_rTime = 0;
-
-
 
 float getSpeedLeft(void) {
   //Serial.print("Enter GetSpeedLeft. dt: ");
@@ -782,8 +858,6 @@ float getSpeedLeft(void) {
   //  Serial.print(vL);
   return (vL);
 }
-
-//int old_rCount, old_time_right;
 float getSpeedRight(void) {
   long dt = micros() - old_rTime;
   double dt_sec = ((double)dt / 1000000.0);
