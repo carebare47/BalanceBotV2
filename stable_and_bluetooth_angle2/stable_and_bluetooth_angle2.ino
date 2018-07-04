@@ -169,7 +169,10 @@ int printDebugTimer(String str) {
 
 }
 bool zeroFlag = true;
+float tmpAngle;
 float discard;
+
+long loopTimer = 0;
 
 long gOldTime = 0;
 void loop() {
@@ -198,9 +201,9 @@ void loop() {
     }
   */
 
-
-
-  //velocity control from bt
+  //
+  //
+  //  //velocity control from bt
   if (BTSerial.available()) {
     //int avail = printDebugTimer("bt is available");
     angleOffset = (processBluetooth());
@@ -229,27 +232,43 @@ void loop() {
   //  }
 
 
-
-  //Check for hardware serial commands and act upon them
+  //
+  //  //Check for hardware serial commands and act upon them
   while (Serial.available () > 0) {
     //discard = processBluetooth();
     processIncomingByte (Serial.read (), PIDa, PIDa, false);
   }
 
 
-
-  //getAngle() returns '1000' when the angle hasn't been updated.
-  float tmpAngle = getAngle();
-  //if ((tmpAngle != 1000) && (tmpAngle != 0.0) &&) {
-  if (((-30.0) > tmpAngle > (-70.0))) {
-    aInput = tmpAngle;
-    //aInput = aHome;
+  if ((micros() - loopTimer) > 10000) {
+    tmpAngle = getAngle();
+    if (tmpAngle != 1000) {
+      aInput = tmpAngle;
+      Serial.print(aInput);
+    }
+    loopTimer = micros();
   }
 
-  if (printFlag) {
-    Serial.print("aInput: ");
-    Serial.print(aInput);
-  }
+//
+//  float tmpAngle = getAngle();
+//  if (tmpAngle != 1000) {
+//    aInput = tmpAngle;
+//    Serial.print(aInput);
+//  }
+
+
+  //  //getAngle() returns '1000' when the angle hasn't been updated.
+  //  float tmpAngle = getAngle();
+  //  //if ((tmpAngle != 1000) && (tmpAngle != 0.0) &&) {
+  //  if (((-30.0) > tmpAngle > (-70.0))) {
+  //    aInput = tmpAngle;
+  //    //aInput = aHome;
+  //  }
+  //
+  //  if (printFlag) {
+  //    Serial.print("aInput: ");
+  //    Serial.print(aInput);
+  //  }
 
 
 
@@ -258,19 +277,19 @@ void loop() {
 
   //if (!isnan(pInput)) {
 
-  pInput = getSpeedLeft();
-  //if (pSetpoint == (double)0.0) {
-  if (printFlag5) {
-    Serial.println("Not tracking pPID, resetting integral...");
-  }
-  if (!zeroFlag) {
-    PIDp.Compute(false);
-    aSetpoint = pOutput + aHome;
-  } else {
-    pOutput = 0.0;
-    aSetpoint = aHome;
-
-  }
+  //  pInput = getSpeedLeft();
+  //  //if (pSetpoint == (double)0.0) {
+  //  if (printFlag5) {
+  //    Serial.println("Not tracking pPID, resetting integral...");
+  //  }
+  //  if (!zeroFlag) {
+  //    PIDp.Compute(false);
+  //    aSetpoint = pOutput + aHome;
+  //  } else {
+  //    pOutput = 0.0;
+  //    aSetpoint = aHome;
+  //
+  //  }
 
   //pOutput = 0;
   //processIncomingByte (7 , PIDa, PIDa, true);
@@ -288,9 +307,10 @@ void loop() {
   //pOutput = 0;
   //PIDp.Compute(false);
 
-  if (aInput != 0.0) {
-    PIDa.Compute(false);
-  }
+  //  if (aInput != 0.0) {
+  //    PIDa.Compute(false);
+  //  }
+  PIDa.Compute(false);
   if (printFlag2) {
     discard = getAngle();
     Serial.print("pInput: ");
