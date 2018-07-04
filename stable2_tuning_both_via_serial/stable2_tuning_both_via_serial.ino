@@ -55,7 +55,7 @@ byte index = 0;
 //#define angleMax -45.56
 //#define aHome -45.6
 //float aHome = -45.6;
-float aHome = -50.13;
+float aHome = -47.47;
 //float aHome = -46.6;
 //#define angleMin -45.63
 //45.5
@@ -75,7 +75,7 @@ double aSetpoint = aHome;
 
 //Specify the links and initial tuning parameters
 //double aKp = 30, aKi = 0.1, aKd = 1;
-double pKp = 6.0 , pKi = 10.0, pKd = 0.2;
+double pKp = 10.0 , pKi = 0.0, pKd = 0.08;
 double aKp = 7.0, aKi = 8.0, aKd = 0.66;
 //double aKp = 70 , aKi = 140, aKd = 4.9;
 
@@ -276,8 +276,8 @@ void setup() {
   PIDa.SetSampleTime(10);
 
   PIDp.SetMode(AUTOMATIC);
-  PIDp.SetOutputLimits(-4.5, 4.5);
-  PIDp.SetSampleTime(40);
+  PIDp.SetOutputLimits(-7.5, 7.5);
+  PIDp.SetSampleTime(60);
 
   // pin change interrupt (D12)
   PCMSK0 |= bit (PCINT4);  // want pin 12
@@ -619,7 +619,7 @@ void loop() {
         Serial.print(" New aHome: ");
       }
       //aSetpoint = aHomeConst + angleOffset;//(float)((angleOffset-5000.0)/1000.0);
-      pSetpoint = angleOffset;//(float)((angleOffset-5000.0)/1000.0);
+      pSetpoint = (angleOffset * 3); //(float)((angleOffset-5000.0)/1000.0);
       if (printFlag) {
         Serial.println(pSetpoint);
       }
@@ -666,6 +666,7 @@ void loop() {
 
 
     aSetpoint = aHome + pOutput;
+    //aSetpoint = aHome + (angleOffset*4);
 
     if (printFlag7) {
       if (!angleFlag) {
@@ -706,6 +707,7 @@ void loop() {
 
   // reset interrupt flag and get INT_STATUS byte
   mpuInterrupt = false;
+  //Calling getIntStatus() should clear fifo overflow flag inside mpu6050 - check this
   mpuIntStatus = mpu.getIntStatus();
 
   // get current FIFO count
@@ -716,6 +718,7 @@ void loop() {
   }
   // check for overflow (this should never happen unless our code is too inefficient)
   if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+    //if ((mpuIntStatus & 0x10) || fifoCount >= 1024) {
     // reset so we can continue cleanly
     mpu.resetFIFO();
     Serial.println(F("FIFO overflow!"));
@@ -730,12 +733,18 @@ void loop() {
     if (printTimeFlag) {
       Serial.println("f2");
     }
-    // read a packet from FIFO
-    mpu.getFIFOBytes(fifoBuffer, packetSize);
 
-    // track FIFO count here in case there is > 1 packet available
-    // (this lets us immediately read more without waiting for an interrupt)
-    fifoCount -= packetSize;
+
+    //Hack
+    while (fifoCount >= packetSize) {
+      // read a packet from FIFO
+      mpu.getFIFOBytes(fifoBuffer, packetSize);
+
+      // track FIFO count here in case there is > 1 packet available
+      // (this lets us immediately read more without waiting for an interrupt)
+      fifoCount -= packetSize;
+    }
+
 
     //#ifdef OUTPUT_READABLE_YAWPITCHROLL
     // display Euler angles in degrees
